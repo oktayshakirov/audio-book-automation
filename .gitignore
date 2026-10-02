@@ -7,10 +7,15 @@ out/
 *.wav
 .DS_Store
 
-# Book manuscripts, plans and source audits.
+# Book manuscripts, plans and source audits. LOCAL ONLY - do not commit.
 #
-# This repo is public and a finished manuscript is a paid product, so the text
-# stays out of history. The machinery, the docs and the per-book build recipe
-# are the shareable parts; the book itself is not. Remove a line here only as
-# a deliberate decision to publish that book's text.
+# Decided 2026-10-03 for the tinnitus book: the manuscript stays on disk and
+# is not published here. This repo is public and a finished manuscript is a
+# paid product; the machinery, the docs and the build recipe are the
+# shareable parts, the book is not.
+#
+# If a book's text is ever published it will be on its own site, not in this
+# repo. Note that doing so is a publishing decision in its own right: the
+# site repo is also public and a push to its main branch is a production
+# deploy. Never make that call on the author's behalf.
 projects/*/book/

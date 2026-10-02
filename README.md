@@ -76,11 +76,14 @@ projects/<book>/
     SOURCES.md         a row per factual claim, with its status
 ```
 
-**`projects/*/book/` is git-ignored.** This repo is public and a finished
-manuscript is a paid product, so the text stays out of history. The machinery,
-the docs and the build recipe are the shareable parts; the book is not.
-Removing that ignore rule should be a deliberate decision to publish a
-particular book.
+**`projects/*/book/` is git-ignored, and that is a decision rather than an
+oversight.** This repo is public and a finished manuscript is a paid product,
+so the text stays on disk and out of history. The machinery, the docs and the
+build recipe are the shareable parts; the book is not.
+
+Do not remove that rule to be helpful. If a book's text is ever published it
+goes to its own site, which is a separate publishing decision for its author
+to make.
 
 Rendered audio goes wherever the recipe points - by default somewhere outside
 the repo, since it is large and regenerable.
