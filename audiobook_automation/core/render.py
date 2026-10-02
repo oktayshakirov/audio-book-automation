@@ -7,7 +7,7 @@ durations, never estimates.
 from __future__ import annotations
 
 import subprocess
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 from . import pacing, pronounce
@@ -105,6 +105,7 @@ class Rendered:
     seconds: float
     words: int
     pause_seconds: float
+    speed: float = 0.0
 
     @property
     def spoken_wpm(self) -> float:
@@ -115,12 +116,63 @@ class Rendered:
         m, s = divmod(int(self.seconds), 60)
         return (f"{self.path.name}  {m}:{s:02d}  {self.words} words  "
                 f"{self.pause_seconds:.1f}s pause  "
-                f"{self.spoken_wpm:.0f} wpm spoken")
+                f"speed {self.speed:.3f}  {self.spoken_wpm:.0f} wpm spoken")
 
 
 def track(manuscript: Path | str, out_dir: Path | str,
-          narrator: Narrator = DEFAULT, limit: int = 0) -> Rendered:
-    """Render one manuscript file to one MP3."""
+          narrator: Narrator = DEFAULT, limit: int = 0,
+          target_wpm: float | None = None, tolerance: float = 4.0,
+          max_rounds: int = 6) -> Rendered:
+    """Render one manuscript file to one MP3.
+
+    With `target_wpm`, the speed is calibrated per track until the **measured
+    spoken** rate hits the target. Set it to keep every chapter at one pace.
+
+    Why that is not the same as one speed setting everywhere: at a fixed
+    speed, a chapter built from long paragraphs reads faster than one built
+    from short ones, because short paragraphs are cold starts and Kokoro
+    delivers a standalone utterance more slowly. On the first book that was
+    192 wpm in a beat-heavy chapter against 202 in a long-paragraph one, with
+    pause time already excluded. Same setting, audibly different pace.
+    """
+    if target_wpm is not None:
+        # Converge on measured pace.
+        #
+        # Two things make this harder than it looks. The first correction is a
+        # ratio, which assumes wpm is proportional to speed; it is not,
+        # because the per-call overhead does not scale. And the response is
+        # **quantised, not smooth**: on one short track 0.800 gave 192.4 wpm
+        # and 0.802 gave 197.7, a 2.7% jump from a 0.25% change, because
+        # phoneme durations land on frame boundaries.
+        #
+        # So: ratio for the first step, secant after that to follow the real
+        # local slope, and always keep the best measurement seen. Without that
+        # last part the loop returns whatever its final attempt happened to be,
+        # which can be worse than something it already found.
+        pts: list[tuple[float, float]] = []
+        best: tuple[float, float] | None = None       # (speed, wpm)
+        r = None
+        for _ in range(max_rounds):
+            r = track(manuscript, out_dir, narrator, limit)
+            if best is None or abs(r.spoken_wpm - target_wpm) < abs(best[1] - target_wpm):
+                best = (narrator.speed, r.spoken_wpm)
+            if abs(r.spoken_wpm - target_wpm) <= tolerance:
+                return r
+            pts.append((narrator.speed, r.spoken_wpm))
+            if len(pts) == 1:
+                nxt = narrator.speed * (target_wpm / r.spoken_wpm)
+            else:
+                (s1, w1), (s2, w2) = pts[-2], pts[-1]
+                if abs(w2 - w1) < 1e-6:
+                    break
+                nxt = s2 + (target_wpm - w2) * (s2 - s1) / (w2 - w1)
+            narrator = replace(narrator, speed=min(1.40, max(0.50, nxt)))
+
+        # Out of rounds. Leave the best attempt on disk, not the last one.
+        if best is not None and best[0] != narrator.speed:
+            r = track(manuscript, out_dir, replace(narrator, speed=best[0]), limit)
+        return r
+
     src = Path(manuscript)
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -151,13 +203,19 @@ def track(manuscript: Path | str, out_dir: Path | str,
 
     words = len(t.title.split()) + sum(len(p.split()) for p in paras)
     return Rendered(final, ffprobe_duration(final), words,
-                    sum(g for g, _ in plan))
+                    sum(g for g, _ in plan), narrator.speed)
 
 
 def book(manuscript_dir: Path | str, out_dir: Path | str,
-         narrator: Narrator = DEFAULT) -> list[Rendered]:
-    """Render every manuscript file in a directory, in filename order."""
+         narrator: Narrator = DEFAULT,
+         target_wpm: float | None = None) -> list[Rendered]:
+    """Render every manuscript file in a directory, in filename order.
+
+    Pass `target_wpm` to hold every chapter at one measured pace rather than
+    one speed setting. That is usually what a listener means by "the same
+    speed": see `track`.
+    """
     files = sorted(Path(manuscript_dir).glob("*.md"))
     if not files:
         raise FileNotFoundError(f"no .md manuscripts in {manuscript_dir}")
-    return [track(f, out_dir, narrator) for f in files]
+    return [track(f, out_dir, narrator, target_wpm=target_wpm) for f in files]

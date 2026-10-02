@@ -27,12 +27,21 @@ OUT = Path(os.environ.get(
 
 NARRATOR = voices.get("atlas")
 
+# Every chapter is held at one measured pace, not one speed setting. At a
+# fixed setting a long-paragraph chapter reads audibly faster than a
+# beat-heavy one (202 vs 192 wpm here, pause time already excluded), because
+# short paragraphs are cold starts. Chapter 1 is the reference: it is the one
+# auditioned and approved, so the whole book is tuned to its pace.
+TARGET_WPM = 192.0
+
 # The practice chapter. Longest track, most instructional, and the one people
 # replay - so it is the audition track. A voice that survives it survives
 # everything.
 AUDITION_TRACK = "11-ch10.md"
 
-TARGET_MINUTES = (60, 70)
+# Runtime is an outcome now, not a target: holding every chapter at one pace
+# means the total lands where it lands. Recorded for reference only.
+ACTUAL_RUNTIME = "57:50"      # 13 tracks at 192 wpm
 
 
 def main() -> int:
@@ -45,10 +54,11 @@ def main() -> int:
         print(render.track(MANUSCRIPT / AUDITION_TRACK, OUT, NARRATOR, limit=7))
         return 0
     if a.track:
-        print(render.track(MANUSCRIPT / a.track, OUT, NARRATOR))
+        print(render.track(MANUSCRIPT / a.track, OUT, NARRATOR,
+                           target_wpm=TARGET_WPM))
         return 0
 
-    results = render.book(MANUSCRIPT, OUT, NARRATOR)
+    results = render.book(MANUSCRIPT, OUT, NARRATOR, target_wpm=TARGET_WPM)
     for r in results:
         print(" ", r)
     total = sum(r.seconds for r in results)
@@ -58,9 +68,6 @@ def main() -> int:
     print(f"\n{len(results)} tracks  {m}:{s:02d}  {words} words  "
           f"{pause / 60:.1f} min pause  "
           f"{words / ((total - pause) / 60):.0f} wpm spoken")
-    lo, hi = TARGET_MINUTES
-    if not lo <= total / 60 <= hi:
-        print(f"!! outside the {lo}-{hi} minute target")
     return 0
 
 

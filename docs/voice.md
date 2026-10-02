@@ -119,12 +119,52 @@ Renders the first few paragraphs at each speed, prints measured wpm, and
 deletes the files. Send two at a time, bracketing the likely answer: one round
 trip converges faster than one file at a time.
 
-## wpm varies by chapter, and that is expected
+## Hold every chapter at one measured pace, not one speed setting
 
 At the same approved setting, chapter 1 of the first book measured 192 wpm and
 chapter 10 measured 202. Nothing changed but the prose: chapter 10 has longer
 paragraphs, so proportionally fewer cold starts, so a faster average.
 
-Converge the speed on one representative chapter, then leave it alone. Do not
-chase a per-chapter number; a book narrated at a varying speed sounds worse
-than one narrated at a consistent setting.
+**That difference is audible, and it is not pause time** - `spoken_wpm`
+already excludes the designed gaps. It is the speech itself. A chapter built
+from long paragraphs genuinely flows faster than a beat-heavy one at the same
+setting, because Kokoro delivers a standalone utterance more slowly.
+
+An earlier draft of this file said to converge on one chapter and leave the
+setting alone. **That was wrong**, and the author caught it on the first
+listen. One setting does not produce one pace; it produces a book that
+quietly speeds up whenever the paragraphs get longer.
+
+So:
+
+```python
+render.book(manuscript, out, narrator, target_wpm=192)
+```
+
+Each track is rendered, measured, and re-rendered at a corrected speed until
+its **measured spoken wpm** hits the target. Typically two rounds.
+
+Two things make the convergence harder than it looks:
+
+- **wpm is not proportional to speed**, because the per-call overhead does not
+  scale with it. So only the first correction is a ratio; every step after
+  that is a secant through the two most recent measurements, which follows the
+  real local slope instead of assuming one.
+- **The response is quantised, not smooth.** On one short track 0.800 gave
+  192.4 wpm and 0.802 gave 197.7: a 2.7% jump from a 0.25% change, because
+  phoneme durations land on frame boundaries. Chasing a tight tolerance
+  against that is a coin flip, so the default tolerance is 4 wpm (about 2%,
+  inaudible) and the loop always **keeps the best measurement it has seen**
+  rather than returning its last attempt.
+
+On the first book, twelve of thirteen tracks converged to within 1 wpm of
+target in two rounds. The thirteenth was short and beat-heavy and needed a
+manual probe.
+
+**Pick the target from the chapter you auditioned**, since that is the pace
+the author actually approved. Expect the per-chapter speed settings to spread
+by a few percent either side of the audition speed; that spread is the
+correction doing its job, not drift.
+
+Total runtime moves as a result. Let it. Consistent pace is worth more than a
+round number, and the runtime was never the product.

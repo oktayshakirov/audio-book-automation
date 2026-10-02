@@ -7,8 +7,12 @@ The profile is the unit that gets named, approved and referenced.
 **Speed is recorded as measured words per minute, not just as the Kokoro
 parameter**, because the parameter means different things depending on how the
 text is chunked. The same 192 words at the same setting measured 196 wpm as a
-single call and 147 wpm split across seven paragraph calls. See
-`docs/voice.md`.
+single call and 147 wpm split across seven paragraph calls.
+
+For the same reason, `speed` here is a **starting point, not the value a book
+is rendered at**. Chapters differ in paragraph length, so one setting gives
+different paces; pass `target_wpm` to `render.book` and let it calibrate each
+track to the `wpm` below. See `docs/voice.md`.
 
 **Status is not a rating.** `approved` means it has shipped in a finished
 book. `candidate` means it is shortlisted and waiting on a decision. Nothing
