@@ -67,10 +67,23 @@ paragraphs is a performance decision, not a typographic one.**
 
 ## Where the content lives
 
-This repo holds the machinery. A book's manuscript lives in its own project,
-the way `video-edit-automation` keeps content in the site repos. `projects/`
-holds the per-book build recipe: where the manuscript is, which narrator, what
-the target runtime is.
+```
+projects/<book>/
+  <book>.py            the build recipe - narrator, target pace, pinned speeds
+  book/                git-ignored
+    manuscript/        the tracks, one .md per track
+    PLAN.md            format, voice decisions, what is still open
+    SOURCES.md         a row per factual claim, with its status
+```
+
+**`projects/*/book/` is git-ignored.** This repo is public and a finished
+manuscript is a paid product, so the text stays out of history. The machinery,
+the docs and the build recipe are the shareable parts; the book is not.
+Removing that ignore rule should be a deliberate decision to publish a
+particular book.
+
+Rendered audio goes wherever the recipe points - by default somewhere outside
+the repo, since it is large and regenerable.
 
 ## Docs
 

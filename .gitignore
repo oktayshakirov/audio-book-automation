@@ -6,3 +6,11 @@ out/
 *.mp3
 *.wav
 .DS_Store
+
+# Book manuscripts, plans and source audits.
+#
+# This repo is public and a finished manuscript is a paid product, so the text
+# stays out of history. The machinery, the docs and the per-book build recipe
+# are the shareable parts; the book itself is not. Remove a line here only as
+# a deliberate decision to publish that book's text.
+projects/*/book/

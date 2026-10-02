@@ -4,8 +4,10 @@
     python projects/tinnitus/shut-up-tinnitus.py --track 11-ch10.md
     python projects/tinnitus/shut-up-tinnitus.py --sample   # ch10, 7 paragraphs
 
-The manuscript lives outside this repo: it is a commercial product and this
-repo is public. Override either path with AUDIOBOOK_MANUSCRIPT / AUDIOBOOK_OUT.
+The manuscript sits next to this file in book/. It is **git-ignored**: this
+repo is public and the book is a paid product, so the text is kept out of
+history until that is a deliberate decision. Rendered audio goes to the
+Desktop. Override either path with AUDIOBOOK_MANUSCRIPT / AUDIOBOOK_OUT.
 """
 from __future__ import annotations
 
@@ -19,12 +21,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from audiobook_automation.core import render, voices  # noqa: E402
 
+HERE = Path(__file__).resolve().parent
+
 MANUSCRIPT = Path(os.environ.get(
-    "AUDIOBOOK_MANUSCRIPT",
-    Path.home() / "Desktop/audiobook/script"))
+    "AUDIOBOOK_MANUSCRIPT", HERE / "book" / "manuscript"))
 OUT = Path(os.environ.get(
-    "AUDIOBOOK_OUT",
-    Path.home() / "Desktop/audiobook/out"))
+    "AUDIOBOOK_OUT", Path.home() / "Desktop" / "audiobook"))
 
 NARRATOR = voices.get("atlas")
 
