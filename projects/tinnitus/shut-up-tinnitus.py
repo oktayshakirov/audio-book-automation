@@ -4,14 +4,15 @@
     python projects/tinnitus/shut-up-tinnitus.py --track 11-ch10.md
     python projects/tinnitus/shut-up-tinnitus.py --sample   # ch10, 7 paragraphs
 
-The manuscript lives in the tinnitus-blog repo, not here: it is a commercial
-product and this repo is public. Override with AUDIOBOOK_MANUSCRIPT.
+The manuscript lives outside this repo: it is a commercial product and this
+repo is public. Override either path with AUDIOBOOK_MANUSCRIPT / AUDIOBOOK_OUT.
 """
 from __future__ import annotations
 
 import argparse
 import os
 import sys
+from dataclasses import replace
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
@@ -20,10 +21,10 @@ from audiobook_automation.core import render, voices  # noqa: E402
 
 MANUSCRIPT = Path(os.environ.get(
     "AUDIOBOOK_MANUSCRIPT",
-    Path.home() / "Coding/tinnitus-blog/audiobook/script"))
+    Path.home() / "Desktop/audiobook/script"))
 OUT = Path(os.environ.get(
     "AUDIOBOOK_OUT",
-    Path.home() / "Coding/tinnitus-blog/audiobook/out"))
+    Path.home() / "Desktop/audiobook/out"))
 
 NARRATOR = voices.get("atlas")
 
@@ -34,6 +35,13 @@ NARRATOR = voices.get("atlas")
 # auditioned and approved, so the whole book is tuned to its pace.
 TARGET_WPM = 192.0
 
+# Tracks where auto-calibration cannot land cleanly, with the speed that was
+# measured by hand. The conclusion is short and beat-heavy, and its speed/wpm
+# response is badly quantised: 0.797 gives 187 wpm, 0.800 gives 192.4, 0.802
+# gives 197.7. The loop cannot reliably find a 0.003-wide window, so it is
+# pinned. Re-measure if the text changes.
+PINNED_SPEED = {"13-outro.md": 0.800}
+
 # The practice chapter. Longest track, most instructional, and the one people
 # replay - so it is the audition track. A voice that survives it survives
 # everything.
@@ -42,6 +50,15 @@ AUDITION_TRACK = "11-ch10.md"
 # Runtime is an outcome now, not a target: holding every chapter at one pace
 # means the total lands where it lands. Recorded for reference only.
 ACTUAL_RUNTIME = "57:50"      # 13 tracks at 192 wpm
+
+
+def _one(name: str):
+    """Render one track: pinned speed if it has one, else calibrated."""
+    if name in PINNED_SPEED:
+        return render.track(MANUSCRIPT / name, OUT,
+                            replace(NARRATOR, speed=PINNED_SPEED[name]))
+    return render.track(MANUSCRIPT / name, OUT, NARRATOR,
+                        target_wpm=TARGET_WPM)
 
 
 def main() -> int:
@@ -54,11 +71,10 @@ def main() -> int:
         print(render.track(MANUSCRIPT / AUDITION_TRACK, OUT, NARRATOR, limit=7))
         return 0
     if a.track:
-        print(render.track(MANUSCRIPT / a.track, OUT, NARRATOR,
-                           target_wpm=TARGET_WPM))
+        print(_one(a.track))
         return 0
 
-    results = render.book(MANUSCRIPT, OUT, NARRATOR, target_wpm=TARGET_WPM)
+    results = [_one(f.name) for f in sorted(MANUSCRIPT.glob("*.md"))]
     for r in results:
         print(" ", r)
     total = sum(r.seconds for r in results)
