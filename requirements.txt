@@ -1,0 +1,12 @@
+# Local, offline synthesis. Apache 2.0, so commercial use is fine.
+#
+# Installed as kokoro-onnx, NOT the PyTorch `kokoro` package: that one depends
+# on spacy, which has no Python 3.13 wheels and fails to build, and would pull
+# in ~2.5GB of torch for no benefit here.
+kokoro-onnx>=0.4.0
+soundfile>=0.12
+numpy>=1.26
+
+# ffmpeg and ffprobe must be on PATH (brew install ffmpeg).
+# espeak-ng must be on PATH for the pronunciation checker
+# (brew install espeak-ng). Synthesis works without it; `pronounce` does not.
