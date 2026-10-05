@@ -85,17 +85,35 @@ def silence(seconds: float, out: Path) -> Path:
     return out
 
 
-def paragraph_wpm(text: str, narrator: Narrator) -> float:
-    """Delivered pace of one paragraph, without writing a file."""
+def _speech_seconds(text: str, narrator: Narrator) -> float:
     audio, sr = _kokoro().create(pronounce.say(text), voice=_style(narrator.voice),
                                  speed=narrator.speed, lang="en-us")
-    seconds = len(trim(audio, sr)) / sr
+    return len(trim(audio, sr)) / sr
+
+
+def paragraph_wpm(text: str, narrator: Narrator) -> float:
+    """Delivered words per minute for one paragraph."""
+    seconds = _speech_seconds(text, narrator)
     return len(text.split()) / (seconds / 60) if seconds else 0.0
 
 
+def paragraph_sps(text: str, narrator: Narrator) -> float:
+    """Delivered **syllables per second** for one paragraph.
+
+    This is the one to calibrate on. Words per minute ignores word length, so
+    a chapter written in short words sounds slower than one written in long
+    words at the same wpm. Measured on a real book: every chapter hit 192 wpm,
+    but the introduction delivered 4.07 syllables per second against 4.23 to
+    4.31 elsewhere, and the author heard the introduction as too slow.
+    """
+    seconds = _speech_seconds(text, narrator)
+    return pronounce.syllables(text) / seconds if seconds else 0.0
+
+
 def speak_at_pace(text: str, narrator: Narrator, out: Path,
-                  target: float, band: float = 0.08,
-                  max_rounds: int = 3) -> tuple[Path, float]:
+                  target: float, band: float = 0.02,
+                  max_rounds: int = 4,
+                  metric=paragraph_sps) -> tuple[Path, float]:
     """Render one paragraph at a speed that lands its pace near `target`.
 
     Track-level calibration only fixes a chapter's *average*. Within a chapter
@@ -105,17 +123,23 @@ def speak_at_pace(text: str, narrator: Narrator, out: Path,
     down. Paragraph length does not predict it: a 27-word paragraph came out at
     219 wpm and a 21-word one at 154.
 
-    `band` is a dead zone, default 8%. Paragraphs already close enough are left
-    alone, so natural micro-variation survives and only the jarring outliers
-    are pulled in. Flattening every paragraph to an identical rate would trade
-    one artifact for another.
+    `band` is a dead zone, default 2%. Paragraphs already that close are left
+    alone rather than chased round another synthesis pass.
+
+    It started at 8% and had to come down twice. **A dead band only works if it
+    is much narrower than the error you are correcting.** At 8% a chapter
+    running a systematic 4% slow sat entirely inside it and nothing was
+    adjusted at all; at 5% every paragraph could still sit 5% low and the
+    chapter aggregate landed 3% under target. The band is not protecting
+    natural variation - Kokoro's paragraph-to-paragraph spread is an artifact,
+    not performance - it is only there to stop pointless extra passes.
     """
     for _ in range(max_rounds):
-        wpm = paragraph_wpm(text, narrator)
-        if wpm <= 0 or abs(wpm - target) / target <= band:
+        rate = metric(text, narrator)
+        if rate <= 0 or abs(rate - target) / target <= band:
             break
         narrator = replace(narrator,
-                           speed=min(1.40, max(0.50, narrator.speed * (target / wpm))))
+                           speed=min(1.40, max(0.50, narrator.speed * (target / rate))))
     return speak(text, narrator, out), narrator.speed
 
 
@@ -157,6 +181,10 @@ def track(manuscript: Path | str, out_dir: Path | str,
           narrator: Narrator = DEFAULT, limit: int = 0,
           target_wpm: float | None = None, tolerance: float = 4.0,
           max_rounds: int = 6, even_pace: float | None = None) -> Rendered:
+    # even_pace (syllables/sec, per paragraph) and target_wpm (words/minute,
+    # per track) are two calibrations pulling on the same dial. Running both
+    # means the track-level one overwrites what the paragraph-level one just
+    # fixed, which is exactly what happened the first time. even_pace wins.
     """Render one manuscript file to one MP3.
 
     With `target_wpm`, the speed is calibrated per track until the **measured
@@ -169,7 +197,7 @@ def track(manuscript: Path | str, out_dir: Path | str,
     192 wpm in a beat-heavy chapter against 202 in a long-paragraph one, with
     pause time already excluded. Same setting, audibly different pace.
     """
-    if target_wpm is not None:
+    if target_wpm is not None and even_pace is None:
         # Converge on measured pace.
         #
         # Two things make this harder than it looks. The first correction is a

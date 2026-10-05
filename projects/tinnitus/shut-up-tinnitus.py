@@ -49,7 +49,11 @@ PINNED_SPEED = {"13-outro.md": 0.800}
 # paragraphs were landing anywhere from 144 to 249 wpm, and that swing is what
 # a listener hears as the narrator speeding up and slowing down. An 8% dead
 # band leaves natural micro-variation alone and only pulls in the outliers.
-EVEN_PACE = TARGET_WPM
+# Measured in **syllables per second**, not words per minute. Every chapter
+# hit 192 wpm and the introduction still sounded too slow, because it is
+# written in shorter words: 4.07 syl/sec against 4.23 to 4.31 elsewhere. The
+# author picked the chapter-3/chapter-4 tempo as correct, which measures 4.24.
+EVEN_PACE = 4.24
 
 # The practice chapter. Longest track, most instructional, and the one people
 # replay - so it is the audition track. A voice that survives it survives
@@ -63,12 +67,8 @@ ACTUAL_RUNTIME = "57:50"      # 13 tracks at 192 wpm
 
 def _one(name: str):
     """Render one track: pinned speed if it has one, else calibrated."""
-    if name in PINNED_SPEED:
-        return render.track(MANUSCRIPT / name, OUT,
-                            replace(NARRATOR, speed=PINNED_SPEED[name]),
-                            even_pace=EVEN_PACE)
-    return render.track(MANUSCRIPT / name, OUT, NARRATOR,
-                        target_wpm=TARGET_WPM, even_pace=EVEN_PACE)
+    start = replace(NARRATOR, speed=PINNED_SPEED.get(name, NARRATOR.speed))
+    return render.track(MANUSCRIPT / name, OUT, start, even_pace=EVEN_PACE)
 
 
 def main() -> int:

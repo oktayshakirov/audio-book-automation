@@ -39,3 +39,15 @@ minutes).
 - `paragraph_wpm` and `speak_at_pace` exposed for diagnosing a track.
 - Docs: writing for the ear rather than the page, and why the pace complaint
   lands on track one even when a later track is measurably worse.
+
+## 0.1.3
+
+- Calibrate **syllables per second**, not words per minute. wpm ignores word
+  length: a chapter written in shorter words measured the same 192 wpm as the
+  rest of its book but 4.07 syl/sec against 4.23-4.31, and was audibly slower.
+  `pronounce.syllables` counts from espeak's phonemes.
+- `even_pace` now takes a syllables/sec target and overrides `target_wpm`,
+  which it previously fought: the per-track pass was overwriting the
+  per-paragraph one.
+- Dead band 8% -> 2%. At 8% a systematic 4% error sat entirely inside it and
+  nothing was corrected.

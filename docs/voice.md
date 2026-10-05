@@ -169,6 +169,51 @@ correction doing its job, not drift.
 Total runtime moves as a result. Let it. Consistent pace is worth more than a
 round number, and the runtime was never the product.
 
+## Calibrate syllables per second, not words per minute
+
+Words per minute ignores word length, so it does not measure what a listener
+hears as tempo.
+
+Measured on a finished book, every chapter had been calibrated to the same
+192 wpm and the author still reported the introduction as too slow:
+
+| track | syllables/word | wpm | syl/sec |
+|---|---|---|---|
+| introduction | 1.27 | 192 | **4.07** |
+| chapter 1 | 1.35 | 191 | 4.30 |
+| chapter 3 | 1.32 | 193 | 4.23 |
+| chapter 10 | 1.34 | 193 | 4.31 |
+
+The introduction is written in shorter words. Same wpm, 4% fewer syllables a
+second, audibly slower. **Target syllables per second.** `pronounce.syllables`
+counts them from espeak's phonemes, which is what the model will actually say.
+
+Pick the target by asking the author which chapter sounds right and measuring
+it, rather than choosing a number.
+
+## Two calibrations will fight each other
+
+Running a per-track wpm target and a per-paragraph syllable target together
+does not average out: the track-level pass re-renders at a single speed and
+overwrites what the paragraph-level pass just corrected. The first attempt at
+this fixed nothing for exactly that reason. **Pick one.** Per-paragraph
+syllables per second is the one that matches the ear.
+
+## A dead band must be much narrower than the error it allows through
+
+The per-paragraph correction skips paragraphs already close to target. That
+band started at 8% and had to come down twice:
+
+- **8%** - a chapter running a systematic 4% slow sat entirely inside the
+  band. Every paragraph was skipped and the fix did nothing at all.
+- **5%** - every paragraph could still sit 5% low, and the chapter aggregate
+  landed 3% under target.
+- **2%** - works.
+
+The band is not protecting natural performance. Kokoro's paragraph-to-
+paragraph spread is an artifact, and the band exists only to stop pointless
+extra synthesis passes.
+
 ## Even the pace *inside* a track, not just across tracks
 
 Calibrating a chapter to a target wpm only fixes its **average**. Measured
