@@ -85,6 +85,40 @@ def silence(seconds: float, out: Path) -> Path:
     return out
 
 
+def paragraph_wpm(text: str, narrator: Narrator) -> float:
+    """Delivered pace of one paragraph, without writing a file."""
+    audio, sr = _kokoro().create(pronounce.say(text), voice=_style(narrator.voice),
+                                 speed=narrator.speed, lang="en-us")
+    seconds = len(trim(audio, sr)) / sr
+    return len(text.split()) / (seconds / 60) if seconds else 0.0
+
+
+def speak_at_pace(text: str, narrator: Narrator, out: Path,
+                  target: float, band: float = 0.08,
+                  max_rounds: int = 3) -> tuple[Path, float]:
+    """Render one paragraph at a speed that lands its pace near `target`.
+
+    Track-level calibration only fixes a chapter's *average*. Within a chapter
+    the delivered pace of individual paragraphs ranges wildly - measured 144 to
+    219 wpm in one, 143 to 249 in another, at a single speed setting - and that
+    swing is what a listener hears as the narrator speeding up and slowing
+    down. Paragraph length does not predict it: a 27-word paragraph came out at
+    219 wpm and a 21-word one at 154.
+
+    `band` is a dead zone, default 8%. Paragraphs already close enough are left
+    alone, so natural micro-variation survives and only the jarring outliers
+    are pulled in. Flattening every paragraph to an identical rate would trade
+    one artifact for another.
+    """
+    for _ in range(max_rounds):
+        wpm = paragraph_wpm(text, narrator)
+        if wpm <= 0 or abs(wpm - target) / target <= band:
+            break
+        narrator = replace(narrator,
+                           speed=min(1.40, max(0.50, narrator.speed * (target / wpm))))
+    return speak(text, narrator, out), narrator.speed
+
+
 def speak(text: str, narrator: Narrator, out: Path) -> Path:
     """One paragraph, one call. Never split a paragraph into sentences."""
     import soundfile as sf
@@ -122,7 +156,7 @@ class Rendered:
 def track(manuscript: Path | str, out_dir: Path | str,
           narrator: Narrator = DEFAULT, limit: int = 0,
           target_wpm: float | None = None, tolerance: float = 4.0,
-          max_rounds: int = 6) -> Rendered:
+          max_rounds: int = 6, even_pace: float | None = None) -> Rendered:
     """Render one manuscript file to one MP3.
 
     With `target_wpm`, the speed is calibrated per track until the **measured
@@ -183,10 +217,18 @@ def track(manuscript: Path | str, out_dir: Path | str,
     paras = t.paragraphs[:limit] if limit else t.paragraphs
     plan = list(zip(pacing.gaps(paras), paras))
 
-    parts = [speak(t.title, narrator, work / "title.wav")]
-    for i, (gap, para) in enumerate(plan):
-        parts.append(silence(gap, work / f"g{i:03d}.wav"))
-        parts.append(speak(para, narrator, work / f"p{i:03d}.wav"))
+    if even_pace:
+        parts = [speak_at_pace(t.title, narrator, work / "title.wav",
+                               even_pace)[0]]
+        for i, (gap, para) in enumerate(plan):
+            parts.append(silence(gap, work / f"g{i:03d}.wav"))
+            parts.append(speak_at_pace(para, narrator, work / f"p{i:03d}.wav",
+                                       even_pace)[0])
+    else:
+        parts = [speak(t.title, narrator, work / "title.wav")]
+        for i, (gap, para) in enumerate(plan):
+            parts.append(silence(gap, work / f"g{i:03d}.wav"))
+            parts.append(speak(para, narrator, work / f"p{i:03d}.wav"))
 
     lst = work / "concat.txt"
     lst.write_text("".join(f"file '{p.name}'\n" for p in parts))

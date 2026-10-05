@@ -28,3 +28,14 @@ minutes).
   quantised (0.800 -> 192.4, 0.802 -> 197.7).
 - `Rendered` now reports the speed it was rendered at.
 - Corrected `docs/voice.md`, which had wrongly advised a single fixed speed.
+
+## 0.1.2
+
+- `even_pace` on `render.track`: calibrate every **paragraph**, not just the
+  chapter average. Delivered pace was ranging 144-249 wpm within a single
+  track at one speed setting, which is audible as the narrator speeding up and
+  slowing down. An 8% dead band leaves natural variation alone. On the
+  reported chapter, spread fell from 74 wpm to 29.
+- `paragraph_wpm` and `speak_at_pace` exposed for diagnosing a track.
+- Docs: writing for the ear rather than the page, and why the pace complaint
+  lands on track one even when a later track is measurably worse.

@@ -168,3 +168,41 @@ correction doing its job, not drift.
 
 Total runtime moves as a result. Let it. Consistent pace is worth more than a
 round number, and the runtime was never the product.
+
+## Even the pace *inside* a track, not just across tracks
+
+Calibrating a chapter to a target wpm only fixes its **average**. Measured
+per paragraph at a single speed setting, delivered pace ranged **144 to 219
+wpm** in one chapter and **143 to 249** in another. That swing is what a
+listener hears as the narrator speeding up and slowing down, and it was
+reported on a finished book.
+
+**Paragraph length does not predict it.** In the same chapter a 27-word
+paragraph came out at 219 wpm and a 21-word one at 154. It tracks sentence
+construction and punctuation, not word count, so it cannot be fixed by
+rewriting paragraph lengths.
+
+```python
+render.track(..., even_pace=192)
+```
+
+Each paragraph is measured and re-rendered at a corrected speed. On the
+chapter that was reported, spread fell from **74 wpm to 29** and standard
+deviation from 23.7 to 9.0.
+
+**The 8% dead band matters.** Paragraphs already close to target are left
+alone, so natural micro-variation survives. Flattening every paragraph to an
+identical rate would trade one artifact for another.
+
+**Where it is worst is not where it is most audible.** The chapter the author
+noticed had a *narrower* spread (74) than one they thought was fine (106). It
+was the opening track, where a listener has no baseline yet and is still
+calibrating. Expect the complaint to land on track one regardless of which
+track is technically worst.
+
+## Write for the ear, not the page
+
+A print-ism survives silent reading and fails out loud. Found on a finished
+manuscript: "close this book and go get examined" and "I have been honest with
+you from the first page". Grep a manuscript for `book|page|read on|turn the
+page|as you can see` before rendering.

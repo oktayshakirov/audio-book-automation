@@ -73,6 +73,13 @@ no-nonsense subtitle in the shape *(And How to Finally ...)*.
    chapter. Wall-to-wall swearing reads as a gimmick.
 8. **No em dashes, en dashes or double hyphens, and no curly quotes.** House
    style, and it keeps the synthesiser from stumbling.
+9. **Never refer to the thing as a physical object.** No "close this book", no
+   "from the first page", no "turn to". Grep for them: they survive silent
+   reading and only fail out loud.
+10. **A track's spoken title is not its file heading.** "Introduction. The
+    Sound Is Not the Problem." reads as redundant when the player already
+    shows the track name. Number chapters if it helps navigation, but let the
+    front and back matter carry only their title.
 
 ## Budgeting a book
 
