@@ -62,7 +62,12 @@ AUDITION_TRACK = "11-ch10.md"
 
 # Runtime is an outcome now, not a target: holding every chapter at one pace
 # means the total lands where it lands. Recorded for reference only.
-ACTUAL_RUNTIME = "57:50"      # 13 tracks at 192 wpm
+ACTUAL_RUNTIME = "57:15"      # 13 tracks at ~4.24 syllables/sec
+
+# A full 13-track render takes roughly 45 minutes and does NOT fit inside an
+# agent background-task time limit - it was killed partway through track 9 at
+# about 27 minutes. Run it in a terminal, or render in two batches with
+# --track.
 
 
 def _one(name: str):

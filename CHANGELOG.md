@@ -51,3 +51,8 @@ minutes).
   per-paragraph one.
 - Dead band 8% -> 2%. At 8% a systematic 4% error sat entirely inside it and
   nothing was corrected.
+
+## 0.1.4
+
+- Documented that a full-length render does not fit an agent background-task
+  time limit: ~45 minutes for 13 tracks, killed at ~27. Render in batches.
