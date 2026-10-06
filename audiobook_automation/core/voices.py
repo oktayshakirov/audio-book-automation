@@ -11,8 +11,12 @@ single call and 147 wpm split across seven paragraph calls.
 
 For the same reason, `speed` here is a **starting point, not the value a book
 is rendered at**. Chapters differ in paragraph length, so one setting gives
-different paces; pass `target_wpm` to `render.book` and let it calibrate each
-track to the `wpm` below. See `docs/voice.md`.
+different paces.
+
+And `wpm` below is a record, not a target. **Calibrate on syllables per
+second**, via `even_pace` on `render.track`: words per minute ignores word
+length, so a chapter written in shorter words sounds slower at the same wpm.
+See `docs/voice.md`.
 
 **Status is not a rating.** `approved` means it has shipped in a finished
 book. `candidate` means it is shortlisted and waiting on a decision. Nothing
