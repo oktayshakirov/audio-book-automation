@@ -110,6 +110,25 @@ def paragraph_sps(text: str, narrator: Narrator) -> float:
     return pronounce.syllables(text) / seconds if seconds else 0.0
 
 
+# Below this, do not pace-calibrate at all: speak at the narrator's own speed.
+#
+# Every synthesis call carries a fixed overhead of onset and decay that
+# trimming does not remove. On a long paragraph that is noise; on a short one
+# it dominates, so the *measured* rate reads far below the true rate and the
+# correction chases an artifact. Measured on a real book's chapter titles: a
+# 5-syllable title read 2.99 syl/sec against a true ~4.2, so the loop drove it
+# to the 1.40 speed ceiling and it came out garbled and unintelligible, while
+# every other title landed between 0.94 and 1.27 against a 0.88 body speed.
+#
+# 25 syllables keeps the measurement bias under roughly 6%.
+MIN_SYLLABLES_TO_PACE = 25
+
+# And never move more than this far from the narrator's own speed, whatever
+# the measurement says. A pace correction that changes the voice is not a
+# pace correction.
+MAX_SPEED_DRIFT = 0.15
+
+
 def speak_at_pace(text: str, narrator: Narrator, out: Path,
                   target: float, band: float = 0.02,
                   max_rounds: int = 4,
@@ -134,12 +153,17 @@ def speak_at_pace(text: str, narrator: Narrator, out: Path,
     natural variation - Kokoro's paragraph-to-paragraph spread is an artifact,
     not performance - it is only there to stop pointless extra passes.
     """
+    if pronounce.syllables(text) < MIN_SYLLABLES_TO_PACE:
+        return speak(text, narrator, out), narrator.speed
+
+    base = narrator.speed
+    lo, hi = base * (1 - MAX_SPEED_DRIFT), base * (1 + MAX_SPEED_DRIFT)
     for _ in range(max_rounds):
         rate = metric(text, narrator)
         if rate <= 0 or abs(rate - target) / target <= band:
             break
         narrator = replace(narrator,
-                           speed=min(1.40, max(0.50, narrator.speed * (target / rate))))
+                           speed=min(hi, max(lo, narrator.speed * (target / rate))))
     return speak(text, narrator, out), narrator.speed
 
 

@@ -56,3 +56,12 @@ minutes).
 
 - Documented that a full-length render does not fit an agent background-task
   time limit: ~45 minutes for 13 tracks, killed at ~27. Render in batches.
+
+## 0.1.5
+
+- Do not pace-calibrate utterances below 25 syllables, and never drift more
+  than 15% from the narrator's own speed. Every synthesis call carries fixed
+  onset/decay overhead; on a short utterance it dominates, so the measured
+  rate reads far low and the correction chases an artifact. Chapter titles
+  were rendering at 0.94-1.39 against a 0.88 body speed, and a 5-syllable
+  title hit the 1.40 ceiling and came out unintelligible.
