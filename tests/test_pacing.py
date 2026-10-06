@@ -58,3 +58,37 @@ def test_legacy_voice_markers_still_parse(tmp_path):
     p.write_text(MANUSCRIPT.replace("[TITLE]", "[FEMALE VOICE]")
                            .replace("[BODY]", "[MALE VOICE]"))
     assert pacing.parse(p).title == "Chapter One. The Title."
+
+
+# --- pace-calibration guards -------------------------------------------
+# These exist because a real book shipped with unintelligible chapter titles.
+# Short utterances carry a fixed per-call overhead, so their measured rate
+# reads far below the true rate and the calibration drove a 5-syllable title
+# to the speed ceiling. Both guards are cheap and neither is obvious.
+
+def test_short_utterances_are_never_pace_calibrated():
+    from audiobook_automation.core import pronounce, render
+    # every chapter title in a real book fell below the floor
+    for title in ("Chapter Three. The Fear Loop.",
+                  "The Sound Is Not the Problem.",
+                  "The Day You Stop Checking."):
+        assert pronounce.syllables(title) < render.MIN_SYLLABLES_TO_PACE, title
+
+
+def test_a_full_paragraph_is_still_pace_calibrated():
+    from audiobook_automation.core import pronounce, render
+    para = ("Take two people. Put them both in a clinic and measure their "
+            "tinnitus properly, the way an audiologist does it. Match the "
+            "pitch. Match the loudness.")
+    assert pronounce.syllables(para) >= render.MIN_SYLLABLES_TO_PACE
+
+
+def test_drift_cap_keeps_speed_near_the_narrator():
+    """A correction that changes the voice is not a correction."""
+    from audiobook_automation.core import render
+    base = 0.88
+    lo = base * (1 - render.MAX_SPEED_DRIFT)
+    hi = base * (1 + render.MAX_SPEED_DRIFT)
+    # the title that shipped broken was driven to 1.392 from a 0.88 base
+    assert not lo <= 1.392 <= hi
+    assert hi < 1.05
