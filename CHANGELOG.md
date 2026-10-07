@@ -81,3 +81,5 @@ minutes).
 - Writing rule: never write a bare "Chapter N." as a sentence. The narrator
   opens every track with that cadence, so mid-chapter it sounds like the file
   jumped. Caught by a listener on a shipped render.
+- `--preview` builds the retail sample: the opening tracks concatenated, with
+  a check against the ten-minute limit retailers impose.

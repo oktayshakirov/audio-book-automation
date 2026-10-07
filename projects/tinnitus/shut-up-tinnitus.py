@@ -76,12 +76,63 @@ def _one(name: str):
     return render.track(MANUSCRIPT / name, OUT, start, even_pace=EVEN_PACE)
 
 
+# The retail sample. Spotify allows up to ten minutes.
+#
+# The introduction and chapter one, unbroken and in order, which runs about
+# 8:15. Taking the opening rather than a highlight reel means the sample is
+# the actual listening experience, and chapter one ends on the book's best
+# line - "you are hearing something other people are not listening to" - so
+# it stops on a hook rather than fading out mid-argument.
+PREVIEW_TRACKS = ["01-intro.mp3", "02-ch01.mp3"]
+PREVIEW_GAP = 1.6          # seconds between the two, a little longer than a
+                           # paragraph break so the chapter change is clear
+PREVIEW_MAX = 10 * 60
+
+
+def preview() -> int:
+    """Concatenate the opening tracks into one retail sample."""
+    import subprocess, tempfile
+    parts = [OUT / t for t in PREVIEW_TRACKS]
+    missing = [p for p in parts if not p.exists()]
+    if missing:
+        print(f"!! render these first: {', '.join(p.name for p in missing)}")
+        return 1
+
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        gap = tmp / "gap.mp3"
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i",
+                        "anullsrc=r=44100:cl=mono", "-t", str(PREVIEW_GAP),
+                        "-codec:a", "libmp3lame", "-b:a", "192k", str(gap)],
+                       check=True)
+        seq = [parts[0]]
+        for p in parts[1:]:
+            seq += [gap, p]
+        lst = tmp / "concat.txt"
+        lst.write_text("".join(f"file '{p.resolve()}'\n" for p in seq))
+        out = OUT / "Shut-Up-Tinnitus-sample.mp3"
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "concat",
+                        "-safe", "0", "-i", str(lst), "-codec:a", "libmp3lame",
+                        "-b:a", "192k", "-ar", "44100", str(out)], check=True)
+
+    d = render.ffprobe_duration(out)
+    m, sec = divmod(int(round(d)), 60)
+    over = "  !! OVER THE 10 MINUTE LIMIT" if d > PREVIEW_MAX else ""
+    print(f"{out.name}  {m}:{sec:02d}  ({out.stat().st_size/1024/1024:.1f} MB)"
+          f"{over}")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--track")
     ap.add_argument("--sample", action="store_true")
+    ap.add_argument("--preview", action="store_true",
+                    help="build the retail sample (Spotify allows up to 10 min)")
     a = ap.parse_args()
 
+    if a.preview:
+        return preview()
     if a.sample:
         print(render.track(MANUSCRIPT / AUDITION_TRACK, OUT, NARRATOR, limit=7))
         return 0
