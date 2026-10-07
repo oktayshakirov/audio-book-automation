@@ -114,23 +114,36 @@ PREVIEW_GAP = 1.6          # a little longer than a paragraph break, so a
 # profile in core/voices.py, so the credit and the code agree.
 TITLE = "Shut Up, Tinnitus"
 AUTHOR = "Oktay Shakirov"
-NARRATOR = "Atlas, an A I voice"      # spaced so espeak says the letters
+NARRATOR = "Kokoro"
 
-OPENING = (
-    f"This is {TITLE}. "
-    "The No Nonsense Guide to Why Your Ears Ring, Why It Gets Louder, and How "
-    "to Make It Disappear Into the Background. "
-    f"Written by {AUTHOR}, and narrated by {NARRATOR}."
-)
+# Credits are built as segments, each its own call, so the title can be given
+# weight the rest of the line does not have.
+#
+# Kokoro has no emotion parameter, so emphasis comes from three levers and the
+# script carries most of it: construction, pace, and the silence around a
+# phrase. The title gets all three - it is a standalone utterance, it is read
+# slower than the credits around it, and it has a beat either side. Reading it
+# inline at credit pace is what made the first version flat.
+EMPH = 0.72        # the title: slow and deliberate
+PLAIN = 0.90       # the credit lines: brisker, so the title stands out more
 
-CLOSING = (
-    f"You have been listening to {TITLE}, "
-    f"written by {AUTHOR}, and narrated by {NARRATOR}. "
-    "The End. "
-    "There is more at tinnitus help dot me, including a free library of sound "
-    "sessions for the enrichment described in week one. "
-    "Thank you for listening."
-)
+OPENING = [
+    ("This is Shut Up, Tinnitus!", EMPH),
+    ("The No Nonsense Guide to Why Your Ears Ring, Why It Gets Louder, "
+     "and How to Make It Disappear Into the Background.", PLAIN),
+    (f"Written by {AUTHOR}. Narrated by {NARRATOR}.", PLAIN),
+]
+
+CLOSING = [
+    ("You have been listening to Shut Up, Tinnitus!", EMPH),
+    (f"Written by {AUTHOR}. Narrated by {NARRATOR}.", PLAIN),
+    ("The End.", EMPH),
+    ("There is more at tinnitus help dot me, including a free library of "
+     "sound sessions for the enrichment described in week one. "
+     "Thank you for listening.", PLAIN),
+]
+
+CREDIT_GAP = 0.7
 
 
 def credits_tracks() -> int:
@@ -141,20 +154,28 @@ def credits_tracks() -> int:
     pace-calibration floor and read at the narrator's own speed, which is
     what credits should do anyway.
     """
-    n = replace(NARRATOR_PROFILE, speed=NARRATOR_PROFILE.speed)
-    for name, text, limit in (("opening", OPENING, 180),
-                              ("closing", CLOSING, 180)):
+    import subprocess, tempfile
+    for name, segments in (("opening", OPENING), ("closing", CLOSING)):
         out = OUT / f"Shut-Up-Tinnitus-{name}-credits.mp3"
-        wav = OUT / f".{name}.wav"
-        render.speak(text, n, wav)
-        import subprocess
-        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(wav),
-                        "-codec:a", "libmp3lame", "-b:a", "192k",
-                        "-ar", "44100", str(out)], check=True)
-        wav.unlink(missing_ok=True)
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            gap = render.silence(CREDIT_GAP, tmp / "gap.wav")
+            parts = []
+            for i, (text, speed) in enumerate(segments):
+                if parts:
+                    parts.append(gap)
+                parts.append(render.speak(
+                    text, replace(NARRATOR_PROFILE, speed=speed),
+                    tmp / f"s{i}.wav"))
+            lst = tmp / "concat.txt"
+            lst.write_text("".join(f"file '{p.resolve()}'\n" for p in parts))
+            subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "concat",
+                            "-safe", "0", "-i", str(lst), "-codec:a",
+                            "libmp3lame", "-b:a", "192k", "-ar", "44100",
+                            str(out)], check=True)
         d = render.ffprobe_duration(out)
         m, sec = divmod(int(round(d)), 60)
-        bad = "  !! OVER 3 MINUTES" if d > limit else ""
+        bad = "  !! OVER 3 MINUTES" if d > 180 else ""
         print(f"{out.name}  {m}:{sec:02d}{bad}")
     return 0
 

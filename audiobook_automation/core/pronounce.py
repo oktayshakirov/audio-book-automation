@@ -60,6 +60,22 @@ LEXICON: dict[str, Fix] = {
     "percept": Fix(
         "persept", "pɚsˈɛpt", "pˈɜːsɛpt",
         "Verb stress. As a noun it is PER-cept."),
+
+    # Names. Check the native language rather than guessing at the English:
+    #   espeak-ng -q --ipa -v tr "Oktay"      -> ɔktˈaj
+    #   espeak-ng -q --ipa -v bg "Шакиров"   -> ʃakˈirof
+    #   espeak-ng -q --ipa -v ja "こころ"        -> ko̞kˈo̞ɺo̞
+    # English defaults got the stress wrong on all three, which on an author
+    # credit is the one place a listener is certain to notice.
+    "Oktay": Fix(
+        "ahk-tie", "ˈɑːkteɪ", "ˈɑːktˈaɪ",
+        "Turkish. Was OCK-tay, rhyming with day. It is ok-TIE."),
+    "Shakirov": Fix(
+        "sha-keyroff", "ʃˈækɪɹˌɑːv", "ʃˈɑːkˈiːɹɔf",
+        "Bulgarian. Was SHACK-ir-ov. It is sha-KEE-rof, long ee, final f."),
+    "Kokoro": Fix(
+        "ko-kohro", "kəkˈɔːɹoʊ", "kˈoʊkˈoʊɹoʊ",
+        "Japanese. Was kuh-KOR-oh with a schwa. Both o sounds are clear."),
 }
 
 # Checked and deliberately NOT fixed. Kept here so nobody 'fixes' them later.

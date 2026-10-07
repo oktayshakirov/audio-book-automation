@@ -89,3 +89,10 @@ minutes).
 - `--credits` builds the opening and closing credit tracks Author's Republic
   requires. The narrator credit follows the Audio Publishers Association's AI
   narration naming guidelines: name the voice and label it.
+- Names in the lexicon, checked against their native language rather than
+  guessed: Oktay (Turkish), Shakirov (Bulgarian), Kokoro (Japanese). English
+  defaults got the stress wrong on all three, and an author credit is the one
+  place a listener is certain to notice.
+- Credit tracks render as weighted segments. Kokoro has no emotion parameter,
+  so emphasis comes from construction, pace and surrounding silence: the title
+  is a standalone utterance read slower than the credits around it.
