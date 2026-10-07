@@ -78,3 +78,6 @@ minutes).
   It was two case-sensitive passes, so a lowercase lexicon key missed the
   sentence-initial form: one chapter pronounced "ginkgo" correctly three times
   and "Ginkgo" incorrectly three times.
+- Writing rule: never write a bare "Chapter N." as a sentence. The narrator
+  opens every track with that cadence, so mid-chapter it sounds like the file
+  jumped. Caught by a listener on a shipped render.

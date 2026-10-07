@@ -76,7 +76,12 @@ no-nonsense subtitle in the shape *(And How to Finally ...)*.
 9. **Never refer to the thing as a physical object.** No "close this book", no
    "from the first page", no "turn to". Grep for them: they survive silent
    reading and only fail out loud.
-10. **A track's spoken title is not its file heading.** "Introduction. The
+10. **Never write a bare "Chapter N." as a sentence.** The narrator opens
+    every track with that exact cadence, so mid-chapter it sounds like the
+    file jumped to a new chapter. Embed the reference in a sentence instead:
+    "the one from chapter two", "that is chapter three, treated". This one
+    shipped and a listener caught it.
+11. **A track's spoken title is not its file heading.** "Introduction. The
     Sound Is Not the Problem." reads as redundant when the player already
     shows the track name. Number chapters if it helps navigation, but let the
     front and back matter carry only their title.
