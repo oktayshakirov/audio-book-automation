@@ -71,3 +71,10 @@ minutes).
 - Supplemental PDF generator for the tinnitus project: four pages, built with
   reportlab, written to the audio output directory. Google Play Books takes
   one PDF per audiobook under 100MB; Spotify has no documented route for one.
+
+## 0.1.7
+
+- `pronounce.say` matches case-insensitively and preserves the original case.
+  It was two case-sensitive passes, so a lowercase lexicon key missed the
+  sentence-initial form: one chapter pronounced "ginkgo" correctly three times
+  and "Ginkgo" incorrectly three times.

@@ -81,11 +81,27 @@ LEAVE_ALONE: dict[str, str] = {
 
 
 def say(text: str) -> str:
-    """Manuscript text in, synthesiser text out."""
+    """Manuscript text in, synthesiser text out.
+
+    Matching is **case-insensitive, with the original case preserved**. It was
+    two case-sensitive passes, and that shipped a real defect: the lexicon key
+    `ginkgo` replaced the lowercase occurrences and silently missed the
+    sentence-initial `Ginkgo`, so one chapter said "GINK-go" three times and
+    "JINK-go" three times. A word at the start of a sentence is exactly where
+    a listener notices.
+    """
+    def one(word: str, respell: str, s: str) -> str:
+        def repl(m: re.Match) -> str:
+            found = m.group(0)
+            if found.isupper():
+                return respell.upper()
+            if found[0].isupper():
+                return respell[0].upper() + respell[1:]
+            return respell.lower()
+        return re.sub(rf"\b{re.escape(word)}\b", repl, s, flags=re.IGNORECASE)
+
     for word, fix in LEXICON.items():
-        text = re.sub(rf"\b{re.escape(word)}\b", fix.respell, text)
-        text = re.sub(rf"\b{re.escape(word.lower())}\b",
-                      fix.respell.lower(), text)
+        text = one(word, fix.respell, text)
     return text
 
 

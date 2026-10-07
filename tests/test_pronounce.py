@@ -31,3 +31,17 @@ def test_say_does_not_match_inside_words():
 def test_lexicon_still_does_what_it_claims():
     """Fails if espeak's behaviour changes under us."""
     assert pronounce.verify() == []
+
+
+def test_say_is_case_insensitive_and_preserves_case():
+    """A sentence-initial word is exactly where a listener hears the miss.
+
+    This shipped: `ginkgo` was replaced and `Ginkgo` was not, so one chapter
+    pronounced it both ways.
+    """
+    assert pronounce.say("ginkgo biloba") == "ghinkgo biloba"
+    assert pronounce.say("Ginkgo biloba") == "Ghinkgo biloba"
+    assert pronounce.say("GINKGO") == "GHINKGO"
+    # and the other direction, for keys stored capitalised
+    assert pronounce.say("Cochrane") == "Kockrun"
+    assert pronounce.say("the cochrane review") == "the kockrun review"
