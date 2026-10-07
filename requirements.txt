@@ -10,3 +10,7 @@ numpy>=1.26
 # ffmpeg and ffprobe must be on PATH (brew install ffmpeg).
 # espeak-ng must be on PATH for the pronunciation checker
 # (brew install espeak-ng). Synthesis works without it; `pronounce` does not.
+
+# Only for the supplemental-PDF generators in projects/. Synthesis does not
+# need it.
+reportlab>=4.0

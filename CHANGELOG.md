@@ -65,3 +65,9 @@ minutes).
   rate reads far low and the correction chases an artifact. Chapter titles
   were rendering at 0.94-1.39 against a 0.88 body speed, and a 5-syllable
   title hit the 1.40 ceiling and came out unintelligible.
+
+## 0.1.6
+
+- Supplemental PDF generator for the tinnitus project: four pages, built with
+  reportlab, written to the audio output directory. Google Play Books takes
+  one PDF per audiobook under 100MB; Spotify has no documented route for one.
