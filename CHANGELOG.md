@@ -83,3 +83,9 @@ minutes).
   jumped. Caught by a listener on a shipped render.
 - `--preview` builds the retail sample: the opening tracks concatenated, with
   a check against the ten-minute limit retailers impose.
+- Two sample lengths, since retailers disagree: Spotify up to 10 minutes,
+  Author's Republic 1 to 5. `--preview` builds both and fails if either falls
+  outside its window.
+- `--credits` builds the opening and closing credit tracks Author's Republic
+  requires. The narrator credit follows the Audio Publishers Association's AI
+  narration naming guidelines: name the voice and label it.

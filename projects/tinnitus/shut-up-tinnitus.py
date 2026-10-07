@@ -28,7 +28,7 @@ MANUSCRIPT = Path(os.environ.get(
 OUT = Path(os.environ.get(
     "AUDIOBOOK_OUT", Path.home() / "Desktop" / "audiobook"))
 
-NARRATOR = voices.get("atlas")
+NARRATOR_PROFILE = voices.get("atlas")
 
 # Every chapter is held at one measured pace, not one speed setting. At a
 # fixed setting a long-paragraph chapter reads audibly faster than a
@@ -72,7 +72,7 @@ ACTUAL_RUNTIME = "57:15"      # 13 tracks at ~4.24 syllables/sec
 
 def _one(name: str):
     """Render one track: pinned speed if it has one, else calibrated."""
-    start = replace(NARRATOR, speed=PINNED_SPEED.get(name, NARRATOR.speed))
+    start = replace(NARRATOR_PROFILE, speed=PINNED_SPEED.get(name, NARRATOR_PROFILE.speed))
     return render.track(MANUSCRIPT / name, OUT, start, even_pace=EVEN_PACE)
 
 
@@ -83,16 +83,87 @@ def _one(name: str):
 # the actual listening experience, and chapter one ends on the book's best
 # line - "you are hearing something other people are not listening to" - so
 # it stops on a hook rather than fading out mid-argument.
-PREVIEW_TRACKS = ["01-intro.mp3", "02-ch01.mp3"]
-PREVIEW_GAP = 1.6          # seconds between the two, a little longer than a
-                           # paragraph break so the chapter change is clear
-PREVIEW_MAX = 10 * 60
+# Retailers disagree on sample length, so there are two.
+#   Spotify:           up to 10 minutes
+#   Author's Republic: 1 to 5 minutes
+#
+# The long one is the introduction and chapter one unbroken, which runs about
+# 8:15: the real opening rather than a highlight reel, stopping on the best
+# line in the book.
+#
+# The short one is the introduction alone at 3:10. It fits the 1-to-5 window
+# with room to spare and is already self-contained - it opens on the hook,
+# makes the no-cure promise, and ends on "anything learned can be unlearned".
+# Cutting chapter one down to fit would have meant stopping mid-argument.
+PREVIEWS = {
+    "spotify": (["01-intro.mp3", "02-ch01.mp3"], 60, 10 * 60),
+    "ar":      (["01-intro.mp3"], 60, 5 * 60),
+}
+PREVIEW_GAP = 1.6          # a little longer than a paragraph break, so a
+                           # chapter change reads clearly
+
+# --- credit tracks (Author's Republic requires both, 3 min max each) -------
+#
+# "The information within your opening credits track must match your cover art
+# and metadata exactly", so TITLE here has to be character-for-character what
+# goes in the retailer's title field.
+#
+# The narrator credit follows the Audio Publishers Association's AI narration
+# naming guidelines, which Author's Republic says it follows: name the AI
+# voice and label it, shown as "Narrated by: Atlas (AI Voice)". `atlas` is the
+# profile in core/voices.py, so the credit and the code agree.
+TITLE = "Shut Up, Tinnitus"
+AUTHOR = "Oktay Shakirov"
+NARRATOR = "Atlas, an A I voice"      # spaced so espeak says the letters
+
+OPENING = (
+    f"This is {TITLE}. "
+    "The No Nonsense Guide to Why Your Ears Ring, Why It Gets Louder, and How "
+    "to Make It Disappear Into the Background. "
+    f"Written by {AUTHOR}, and narrated by {NARRATOR}."
+)
+
+CLOSING = (
+    f"You have been listening to {TITLE}, "
+    f"written by {AUTHOR}, and narrated by {NARRATOR}. "
+    "The End. "
+    "There is more at tinnitus help dot me, including a free library of sound "
+    "sessions for the enrichment described in week one. "
+    "Thank you for listening."
+)
 
 
-def preview() -> int:
-    """Concatenate the opening tracks into one retail sample."""
+def credits_tracks() -> int:
+    """The opening and closing credit tracks Author's Republic requires.
+
+    Rendered through the same narrator and chain as the book so they do not
+    sound like a different product bolted on. Short, so they fall under the
+    pace-calibration floor and read at the narrator's own speed, which is
+    what credits should do anyway.
+    """
+    n = replace(NARRATOR_PROFILE, speed=NARRATOR_PROFILE.speed)
+    for name, text, limit in (("opening", OPENING, 180),
+                              ("closing", CLOSING, 180)):
+        out = OUT / f"Shut-Up-Tinnitus-{name}-credits.mp3"
+        wav = OUT / f".{name}.wav"
+        render.speak(text, n, wav)
+        import subprocess
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(wav),
+                        "-codec:a", "libmp3lame", "-b:a", "192k",
+                        "-ar", "44100", str(out)], check=True)
+        wav.unlink(missing_ok=True)
+        d = render.ffprobe_duration(out)
+        m, sec = divmod(int(round(d)), 60)
+        bad = "  !! OVER 3 MINUTES" if d > limit else ""
+        print(f"{out.name}  {m}:{sec:02d}{bad}")
+    return 0
+
+
+def preview(which: str = "spotify") -> int:
+    """Build a retail sample. `which` picks the retailer's length rule."""
     import subprocess, tempfile
-    parts = [OUT / t for t in PREVIEW_TRACKS]
+    tracks, lo, hi = PREVIEWS[which]
+    parts = [OUT / t for t in tracks]
     missing = [p for p in parts if not p.exists()]
     if missing:
         print(f"!! render these first: {', '.join(p.name for p in missing)}")
@@ -110,31 +181,37 @@ def preview() -> int:
             seq += [gap, p]
         lst = tmp / "concat.txt"
         lst.write_text("".join(f"file '{p.resolve()}'\n" for p in seq))
-        out = OUT / "Shut-Up-Tinnitus-sample.mp3"
+        out = OUT / f"Shut-Up-Tinnitus-sample-{which}.mp3"
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "concat",
                         "-safe", "0", "-i", str(lst), "-codec:a", "libmp3lame",
                         "-b:a", "192k", "-ar", "44100", str(out)], check=True)
 
     d = render.ffprobe_duration(out)
     m, sec = divmod(int(round(d)), 60)
-    over = "  !! OVER THE 10 MINUTE LIMIT" if d > PREVIEW_MAX else ""
-    print(f"{out.name}  {m}:{sec:02d}  ({out.stat().st_size/1024/1024:.1f} MB)"
-          f"{over}")
-    return 0
+    bad = "" if lo <= d <= hi else f"  !! OUTSIDE {lo//60}-{hi//60} MIN"
+    print(f"{out.name}  {m}:{sec:02d}  "
+          f"({out.stat().st_size/1024/1024:.1f} MB){bad}")
+    return 1 if bad else 0
 
 
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--track")
     ap.add_argument("--sample", action="store_true")
-    ap.add_argument("--preview", action="store_true",
-                    help="build the retail sample (Spotify allows up to 10 min)")
+    ap.add_argument("--credits", action="store_true",
+                    help="build the opening and closing credit tracks")
+    ap.add_argument("--preview", nargs="?", const="all",
+                    choices=["all", "spotify", "ar"],
+                    help="build retail samples; retailers differ on length")
     a = ap.parse_args()
 
+    if a.credits:
+        return credits_tracks()
     if a.preview:
-        return preview()
+        which = list(PREVIEWS) if a.preview == "all" else [a.preview]
+        return max(preview(w) for w in which)
     if a.sample:
-        print(render.track(MANUSCRIPT / AUDITION_TRACK, OUT, NARRATOR, limit=7))
+        print(render.track(MANUSCRIPT / AUDITION_TRACK, OUT, NARRATOR_PROFILE, limit=7))
         return 0
     if a.track:
         print(_one(a.track))
