@@ -96,3 +96,14 @@ minutes).
 - Credit tracks render as weighted segments. Kokoro has no emotion parameter,
   so emphasis comes from construction, pace and surrounding silence: the title
   is a standalone utterance read slower than the credits around it.
+
+## 0.1.8
+
+- First title published: *Shut Up, Tinnitus*, to Google Play Books, Spotify
+  for Authors and Author's Republic.
+- `docs/distribution.md` gains a table of what each retailer actually asks you
+  to upload. They disagree, and the differences are not documented in any one
+  place: two different sample lengths, credit tracks required by one and not
+  the others, and a matching rule between the spoken credits and the metadata.
+- `projects/tinnitus/README.md` records the listing metadata and the decisions
+  worth not relitigating.
