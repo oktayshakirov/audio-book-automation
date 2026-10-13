@@ -73,6 +73,15 @@ LEXICON: dict[str, Fix] = {
     "Shakirov": Fix(
         "sha-keyroff", "ʃˈækɪɹˌɑːv", "ʃˈɑːkˈiːɹɔf",
         "Bulgarian. Was SHACK-ir-ov. It is sha-KEE-rof, long ee, final f."),
+    # The word the whole book is about, so it is worth the care. espeak's
+    # American voice flaps the medial t - tˈɪnɪɾəs comes out "TIN-ih-duss" -
+    # which a retailer's reviewer flagged as not matching the title. British
+    # English gets it right (tˈɪnɪtəs) but switching voice for one word is not
+    # an option, so it is respelled.
+    "tinnitus": Fix(
+        "tinnituss", "tˈɪnɪɾəs", "tˈɪnɪtˌʌs",
+        "American flap turned the t into a d. Hard t, as in the clinical "
+        "pronunciation and the British reading."),
     "Kokoro": Fix(
         "ko-kohro", "kəkˈɔːɹoʊ", "kˈoʊkˈoʊɹoʊ",
         "Japanese. Was kuh-KOR-oh with a schwa. Both o sounds are clear."),
@@ -80,9 +89,6 @@ LEXICON: dict[str, Fix] = {
 
 # Checked and deliberately NOT fixed. Kept here so nobody 'fixes' them later.
 LEAVE_ALONE: dict[str, str] = {
-    "tinnitus": "tˈɪnɪɾəs is the standard clinical pronunciation. Correct. "
-                "Worth checking first in any tinnitus book, since it is said "
-                "hundreds of times.",
     "Beethoven": "bˈeɪtoʊvən is already correct. Every respelling tried was "
                  "worse: 'Baytohven' turns the hard t into an American flap "
                  "(BAY-doh-ven) and hyphenated forms add a second stress. "

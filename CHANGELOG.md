@@ -107,3 +107,14 @@ minutes).
   the others, and a matching rule between the spoken credits and the metadata.
 - `projects/tinnitus/README.md` records the listing metadata and the decisions
   worth not relitigating.
+
+## 0.1.9
+
+- Every rendered track now carries 1.5s of silence at each end. Distributors
+  require 1 to 5 seconds and reject a track without it; trimming the
+  synthesiser's padding, which the internal gap timing depends on, had removed
+  it. Trim the inside, pad the ends.
+- `tinnitus` added to the lexicon. espeak's American voice flaps the medial t
+  into a d, which a retailer's reviewer flagged on the title.
+- `--credits` and `--preview` create their output directory. They previously
+  only worked if a track render had already made it.

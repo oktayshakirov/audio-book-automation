@@ -40,6 +40,32 @@ any one place. Build all of these before you start a submission.
 | Supplemental PDF | one, under 100MB | not documented | not documented |
 | Cover | square, min 1400px, 3000px preferred | same | same |
 
+**Every track needs 1 to 5 seconds of silence at each end.** Author's Republic
+rejects a track with "no start-of-track silence detected", and the validator
+wants `silence_start: 0`. This is the one that catches a locally built
+pipeline, because trimming the synthesiser's padding - which you need, so the
+internal gaps are exact - removes it. Trim the inside, pad the two ends.
+
+Check with:
+
+```bash
+ffmpeg -hide_banner -i track.mp3 -af silencedetect=n=-50dB:d=1.0 -f null -
+```
+
+Note `-v error` suppresses silencedetect's output, since it logs at info
+level. Use `-hide_banner` instead or you will think the silence is missing.
+
+**The title and subtitle must match across metadata, cover art and the credit
+tracks, character for character.** A subtitle shortened to fit the cover is a
+rejection, and it is an easy one to walk into: a long subtitle will not set
+legibly at thumbnail size, so the temptation to trim it on the artwork is
+real. Decide the canonical wording once, before the cover is made.
+
+**Check how the synthesiser says the title.** A reviewer flagged "tinnitus"
+on a title because espeak's American voice flaps the medial t, turning it into
+"TIN-ih-duss". The word in your title is the one word a reviewer is certain to
+listen to.
+
 **Two sample lengths, not one.** A 10-minute sample is too long for Author's
 Republic and a 5-minute one wastes Spotify's allowance. Build both.
 

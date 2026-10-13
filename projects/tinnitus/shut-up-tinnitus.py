@@ -127,10 +127,15 @@ NARRATOR = "Kokoro"
 EMPH = 0.72        # the title: slow and deliberate
 PLAIN = 0.90       # the credit lines: brisker, so the title stands out more
 
+# The subtitle must match the cover art and the metadata character for
+# character. The cover carries the short form, so that is the canonical one -
+# "The No-Nonsense Guide to" is on neither the cover nor, now, anywhere else.
+SUBTITLE = ("Why Your Ears Ring, Why It Gets Louder, and How to Make It "
+            "Disappear Into the Background")
+
 OPENING = [
     ("This is Shut Up, Tinnitus!", EMPH),
-    ("The No Nonsense Guide to Why Your Ears Ring, Why It Gets Louder, "
-     "and How to Make It Disappear Into the Background.", PLAIN),
+    (SUBTITLE + ".", PLAIN),
     (f"Written by {AUTHOR}. Narrated by {NARRATOR}.", PLAIN),
 ]
 
@@ -155,18 +160,20 @@ def credits_tracks() -> int:
     what credits should do anyway.
     """
     import subprocess, tempfile
+    OUT.mkdir(parents=True, exist_ok=True)
     for name, segments in (("opening", OPENING), ("closing", CLOSING)):
         out = OUT / f"Shut-Up-Tinnitus-{name}-credits.mp3"
         with tempfile.TemporaryDirectory() as tmp:
             tmp = Path(tmp)
             gap = render.silence(CREDIT_GAP, tmp / "gap.wav")
-            parts = []
+            parts = [render.silence(render.LEAD_SILENCE, tmp / "head.wav")]
             for i, (text, speed) in enumerate(segments):
-                if parts:
+                if i:
                     parts.append(gap)
                 parts.append(render.speak(
                     text, replace(NARRATOR_PROFILE, speed=speed),
                     tmp / f"s{i}.wav"))
+            parts.append(render.silence(render.TAIL_SILENCE, tmp / "tail.wav"))
             lst = tmp / "concat.txt"
             lst.write_text("".join(f"file '{p.resolve()}'\n" for p in parts))
             subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "concat",
@@ -183,6 +190,7 @@ def credits_tracks() -> int:
 def preview(which: str = "spotify") -> int:
     """Build a retail sample. `which` picks the retailer's length rule."""
     import subprocess, tempfile
+    OUT.mkdir(parents=True, exist_ok=True)
     tracks, lo, hi = PREVIEWS[which]
     parts = [OUT / t for t in tracks]
     missing = [p for p in parts if not p.exists()]
@@ -197,6 +205,8 @@ def preview(which: str = "spotify") -> int:
                         "anullsrc=r=44100:cl=mono", "-t", str(PREVIEW_GAP),
                         "-codec:a", "libmp3lame", "-b:a", "192k", str(gap)],
                        check=True)
+        # The chapter files already carry LEAD/TAIL silence, so the sample
+        # inherits it at both ends and at the join. Nothing to add.
         seq = [parts[0]]
         for p in parts[1:]:
             seq += [gap, p]

@@ -18,9 +18,19 @@ def test_say_respells_and_preserves_case():
 
 
 def test_say_leaves_checked_words_alone():
-    # these are deliberately NOT in the lexicon
-    for w in ("tinnitus", "Beethoven", "cochlea"):
+    # deliberately NOT in the lexicon: espeak already says these correctly
+    for w in ("Beethoven", "cochlea", "Jastreboff"):
         assert pronounce.say(w) == w
+
+
+def test_tinnitus_gets_a_hard_t():
+    """espeak's American voice flaps the medial t into a d.
+
+    A retailer's reviewer flagged it as not matching the title, and it is the
+    word the whole book is about.
+    """
+    assert pronounce.say("tinnitus") == "tinnituss"
+    assert pronounce.say("Tinnitus") == "Tinnituss"
 
 
 def test_say_does_not_match_inside_words():

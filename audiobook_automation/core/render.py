@@ -24,6 +24,18 @@ SR_OUT = 44100
 TRIM_DB = 40.0          # below peak
 TRIM_PAD = 0.04         # seconds kept either side, so decay and breath survive
 
+# Head and tail silence on the finished track. Retailers require it - Author's
+# Republic rejects a track with "no start-of-track silence detected" and asks
+# for 1 to 5 seconds at each end.
+#
+# This is not in tension with the trimming above, though it looks like it.
+# Trimming strips the synthesiser's padding *between* paragraphs so the gaps
+# in `pacing` are exact; this adds a deliberate, known amount at the two ends
+# of the assembled track. Without both you either get sloppy internal timing
+# or a track a distributor will not accept.
+LEAD_SILENCE = 1.5
+TAIL_SILENCE = 1.5
+
 
 def trim(audio, sr: int):
     """Strip leading and trailing near-silence, keeping a short pad."""
@@ -281,6 +293,10 @@ def track(manuscript: Path | str, out_dir: Path | str,
         for i, (gap, para) in enumerate(plan):
             parts.append(silence(gap, work / f"g{i:03d}.wav"))
             parts.append(speak(para, narrator, work / f"p{i:03d}.wav"))
+
+    head = silence(LEAD_SILENCE, work / "_head.wav")
+    tail = silence(TAIL_SILENCE, work / "_tail.wav")
+    parts = [head] + parts + [tail]
 
     lst = work / "concat.txt"
     lst.write_text("".join(f"file '{p.name}'\n" for p in parts))
