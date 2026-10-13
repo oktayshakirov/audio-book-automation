@@ -13,17 +13,22 @@ Public once listed, so it lives here rather than in the git-ignored `book/`.
 | Field | Value |
 |---|---|
 | Title | `Shut Up, Tinnitus` |
-| Subtitle | `The No-Nonsense Guide to Why Your Ears Ring, Why It Gets Louder, and How to Make It Disappear Into the Background` |
+| Subtitle | `Why Your Ears Ring, Why It Gets Louder, and How to Make It Disappear Into the Background` |
 | Author | `Oktay Shakirov` |
 | Narrator | `Kokoro (AI Voice)` |
 | Category | HEA035000 — HEALTH & FITNESS / Hearing & Speech |
 | Second category | SELF-HELP / Stress Management |
 | Price | $4.99, the same on every store |
-| Runtime | 57:34 |
+| Runtime | 58:13 |
 
 **The narrator credit follows the Audio Publishers Association's AI narration
 naming guidelines**: name the voice and label it. The spoken credit says only
 "Narrated by Kokoro"; the parenthetical is for the metadata field.
+
+**The subtitle dropped "The No-Nonsense Guide to"** so that metadata, cover
+art and the spoken credits match character for character. Author's Republic
+rejected the first submission over the mismatch, which came from shortening
+the subtitle to fit the cover.
 
 **Price parity is a Google rule**, not a preference: the Play Books list price
 must not be higher than the same title elsewhere. One number everywhere.
@@ -87,6 +92,18 @@ read slower than the credit lines around it, with a beat either side.
 **Do not distribute to Google Play through Author's Republic.** This title
 goes direct, so that channel must stay deselected there or you get two
 competing listings. Their opt-out is not self-serve; it needs an email.
+
+## Rejected once, and why
+
+Author's Republic bounced the first submission on three points, all fair:
+
+1. **"tinnitus" pronunciation.** espeak's American voice flaps the medial t
+   into a d. Fixed in the lexicon, which meant re-rendering every track.
+2. **Subtitle mismatch** between metadata and cover art, from shortening the
+   subtitle so it would set legibly on the cover.
+3. **No start-of-track silence.** Every track now carries 1.5s at each end.
+   This was a direct consequence of trimming the synthesiser's padding, which
+   the internal gap timing depends on.
 
 ## Still open
 
