@@ -133,14 +133,19 @@ PLAIN = 0.90       # the credit lines: brisker, so the title stands out more
 SUBTITLE = ("Why Your Ears Ring, Why It Gets Louder, and How to Make It "
             "Disappear Into the Background")
 
+# No exclamation on the title. It was there for emphasis and it cost a
+# rejection: the distributor requires the spoken title to match the metadata
+# and the cover art exactly, and neither of those carries one. The weight now
+# comes only from the slow speed and the silence either side, which is what
+# was doing most of the work anyway.
 OPENING = [
-    ("This is Shut Up, Tinnitus!", EMPH),
+    ("This is Shut Up, Tinnitus.", EMPH),
     (SUBTITLE + ".", PLAIN),
     (f"Written by {AUTHOR}. Narrated by {NARRATOR}.", PLAIN),
 ]
 
 CLOSING = [
-    ("You have been listening to Shut Up, Tinnitus!", EMPH),
+    ("You have been listening to Shut Up, Tinnitus.", EMPH),
     (f"Written by {AUTHOR}. Narrated by {NARRATOR}.", PLAIN),
     ("The End.", EMPH),
     ("There is more at tinnitus help dot me, including a free library of "
