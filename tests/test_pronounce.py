@@ -23,14 +23,14 @@ def test_say_leaves_checked_words_alone():
         assert pronounce.say(w) == w
 
 
-def test_tinnitus_gets_a_hard_t():
-    """espeak's American voice flaps the medial t into a d.
+def test_tinnitus_is_left_alone():
+    """The flap is correct American English. Respelling it made it worse.
 
-    A retailer's reviewer flagged it as not matching the title, and it is the
-    word the whole book is about.
+    Forcing a hard t produced a stressed final syllable (TIN-ih-TUSS) that a
+    distributor flagged a second time. See LEAVE_ALONE for the whole story.
     """
-    assert pronounce.say("tinnitus") == "tinnituss"
-    assert pronounce.say("Tinnitus") == "Tinnituss"
+    assert pronounce.say("tinnitus") == "tinnitus"
+    assert pronounce.say("Tinnitus") == "Tinnitus"
 
 
 def test_say_does_not_match_inside_words():

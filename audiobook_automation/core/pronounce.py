@@ -73,15 +73,6 @@ LEXICON: dict[str, Fix] = {
     "Shakirov": Fix(
         "sha-keyroff", "ʃˈækɪɹˌɑːv", "ʃˈɑːkˈiːɹɔf",
         "Bulgarian. Was SHACK-ir-ov. It is sha-KEE-rof, long ee, final f."),
-    # The word the whole book is about, so it is worth the care. espeak's
-    # American voice flaps the medial t - tˈɪnɪɾəs comes out "TIN-ih-duss" -
-    # which a retailer's reviewer flagged as not matching the title. British
-    # English gets it right (tˈɪnɪtəs) but switching voice for one word is not
-    # an option, so it is respelled.
-    "tinnitus": Fix(
-        "tinnituss", "tˈɪnɪɾəs", "tˈɪnɪtˌʌs",
-        "American flap turned the t into a d. Hard t, as in the clinical "
-        "pronunciation and the British reading."),
     "Kokoro": Fix(
         "ko-kohro", "kəkˈɔːɹoʊ", "kˈoʊkˈoʊɹoʊ",
         "Japanese. Was kuh-KOR-oh with a schwa. Both o sounds are clear."),
@@ -89,6 +80,18 @@ LEXICON: dict[str, Fix] = {
 
 # Checked and deliberately NOT fixed. Kept here so nobody 'fixes' them later.
 LEAVE_ALONE: dict[str, str] = {
+    "tinnitus": "tˈɪnɪɾəs, the standard American pronunciation. The medial t "
+                "is a flap, which is correct in en-us and is what any US "
+                "dictionary gives.\n\n"
+                "DO NOT 'fix' the flap. It was tried: a distributor's reviewer "
+                "flagged the word, the flap was assumed to be the cause, and "
+                "respelling it as 'tinnituss' produced tˈɪnɪtˌʌs - a stressed "
+                "final syllable, TIN-ih-TUSS - which is audibly worse than what "
+                "it replaced and was flagged again. No en-us respelling reaches "
+                "tˈɪnɪtəs; espeak flaps it regardless, and the [[phoneme]] escape "
+                "does not help either. en-gb gives it correctly, so rendering "
+                "with lang='en-gb' is the only lever that works - at the cost "
+                "of British phonemes for every other word in the utterance.",
     "Beethoven": "bˈeɪtoʊvən is already correct. Every respelling tried was "
                  "worse: 'Baytohven' turns the hard t into an American flap "
                  "(BAY-doh-ven) and hyphenated forms add a second stress. "
