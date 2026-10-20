@@ -76,6 +76,29 @@ LEXICON: dict[str, Fix] = {
     "Kokoro": Fix(
         "ko-kohro", "kəkˈɔːɹoʊ", "kˈoʊkˈoʊɹoʊ",
         "Japanese. Was kuh-KOR-oh with a schwa. Both o sounds are clear."),
+
+    # Crypto book (2026-10-20). Measured with espeak-ng en-us.
+    "Aretwo": Fix(
+        "Artoo", "æɹˈɛtwoʊ", "ˈɑːɹɾuː",
+        "a-RET-wo. It is the R2 of R2-D2, a Quadriga alias account: AR-too."),
+    "Deetwo": Fix(
+        "Deetoo", "dˈiːtwoʊ", "dˈiːɾuː",
+        "DEE-two-oh read as a word. It is the D2 of R2-D2: DEE-too."),
+    "memecoin": Fix(
+        "meemcoin", "mˈɛmɪkˌɔɪn", "mˈiːmkɔɪn",
+        "MEM-i-coin. A meme is MEEM, so MEEM-coin."),
+    "memecoins": Fix(
+        "meemcoins", "mˈɛmɪkˌɔɪnz", "mˈiːmkɔɪnz",
+        "Same error. Matching is whole-word, so the plural needs its own entry."),
+    "Alameda": Fix(
+        "Alla-meeda", "ɐlˈeɪmdə", "ˈæləmˈiːdə",
+        "a-LAYM-da. Alameda Research is al-uh-MEE-duh."),
+    "Khaled": Fix(
+        "Kahlid", "kˈɑːld", "kˈɑːlɪd",
+        "Collapsed to one syllable, KAHLD. DJ Khaled is KAH-lid."),
+    "Akon": Fix(
+        "A-kon", "ˈækən", "ˈeɪkˈɑːn",
+        "AK-en. The singer is AY-kahn."),
 }
 
 # Checked and deliberately NOT fixed. Kept here so nobody 'fixes' them later.
