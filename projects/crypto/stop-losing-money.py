@@ -3,6 +3,8 @@
     python projects/crypto/stop-losing-money.py                      # whole book
     python projects/crypto/stop-losing-money.py --track 12-ch11.md 13-ch12.md
     python projects/crypto/stop-losing-money.py --audition 4.10 4.38
+    python projects/crypto/stop-losing-money.py --credits     # opening + closing
+    python projects/crypto/stop-losing-money.py --preview     # both samples
 
 The manuscript sits next to this file in book/. It is **git-ignored**: this
 repo is public and the book is a paid product. Rendered audio goes to the
@@ -13,7 +15,10 @@ from __future__ import annotations
 import argparse
 import os
 import shutil
+import subprocess
 import sys
+import tempfile
+from dataclasses import replace
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
@@ -50,6 +55,123 @@ AUDITION_TRACK = "12-ch11.md"
 ACTUAL_RUNTIME = "63:44"
 
 
+# --- listing metadata -------------------------------------------------------
+#
+# Title, subtitle, author and narrator must match the cover art, the retailer
+# metadata and the spoken credits character for character. Author's Republic
+# rejected the tinnitus book over a subtitle shortened to fit its cover, so
+# this one is fixed here first and the cover is set from these strings.
+TITLE = "Stop Losing Money in Crypto"
+SUBTITLE = ("The Scams, Collapses, Leverage and Lost Keys That Take It, "
+            "and How to Keep Yours")
+AUTHOR = "Oktay Shakirov"
+NARRATOR = "Kokoro"          # metadata field: "Kokoro (AI Voice)", per the APA
+
+# --- credit tracks (Author's Republic requires both, 3 min max each) -------
+#
+# Same construction as the tinnitus book: segments, so the title can be a
+# standalone utterance read slower than the credit lines, with a beat either
+# side. Kokoro has no emotion parameter; weight comes from pace and silence.
+EMPH = 0.72
+PLAIN = 0.90
+CREDIT_GAP = 0.7
+
+OPENING = [
+    (f"This is {TITLE}.", EMPH),
+    (SUBTITLE + ".", PLAIN),
+    (f"Written by {AUTHOR}. Narrated by {NARRATOR}.", PLAIN),
+]
+
+CLOSING = [
+    (f"You have been listening to {TITLE}.", EMPH),
+    (f"Written by {AUTHOR}. Narrated by {NARRATOR}.", PLAIN),
+    ("The End.", EMPH),
+    ("There is more at the crypto dot wiki, with free guides on most of the "
+     "topics in this audiobook. Thank you for listening.", PLAIN),
+]
+
+# --- retail samples ----------------------------------------------------------
+#
+#   Spotify:           up to 10 minutes
+#   Author's Republic: 1 to 5 minutes
+#
+# Long: the introduction and chapter one unbroken, about 9 minutes. The real
+# opening, and chapter one ends on the hand-off into irreversibility, so it
+# stops on a hook. Short: the introduction alone, 3:20, which is
+# self-contained and ends on "Because you stopped being easy."
+#
+# The samples are built from the chapter files: re-render the intro or
+# chapter one and the samples must be rebuilt, or they ship stale audio.
+PREVIEWS = {
+    "spotify": (["01-intro.mp3", "02-ch01.mp3"], 60, 10 * 60),
+    "ar":      (["01-intro.mp3"], 60, 5 * 60),
+}
+PREVIEW_GAP = 1.6
+SLUG = "Stop-Losing-Money-in-Crypto"
+
+
+def _concat(parts: list[Path], out: Path, cwd: Path) -> None:
+    lst = cwd / "concat.txt"
+    lst.write_text("".join(f"file '{p.resolve()}'\n" for p in parts))
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "concat", "-safe",
+                    "0", "-i", str(lst), "-codec:a", "libmp3lame", "-b:a",
+                    "192k", "-ar", "44100", str(out)], check=True)
+
+
+def credits_tracks() -> int:
+    """Opening and closing credits, through the book's narrator and chain."""
+    OUT.mkdir(parents=True, exist_ok=True)
+    worst = 0
+    for name, segments in (("opening", OPENING), ("closing", CLOSING)):
+        out = OUT / f"{SLUG}-{name}-credits.mp3"
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            gap = render.silence(CREDIT_GAP, tmp / "gap.wav")
+            parts = [render.silence(render.LEAD_SILENCE, tmp / "head.wav")]
+            for i, (text, speed) in enumerate(segments):
+                if i:
+                    parts.append(gap)
+                parts.append(render.speak(
+                    text, replace(NARRATOR_PROFILE, speed=speed),
+                    tmp / f"s{i}.wav"))
+            parts.append(render.silence(render.TAIL_SILENCE, tmp / "tail.wav"))
+            _concat(parts, out, tmp)
+        d = render.ffprobe_duration(out)
+        m, sec = divmod(int(round(d)), 60)
+        bad = "  !! OVER 3 MINUTES" if d > 180 else ""
+        worst = max(worst, 1 if bad else 0)
+        print(f"{out.name}  {m}:{sec:02d}{bad}")
+    return worst
+
+
+def preview(which: str) -> int:
+    """Build one retail sample; `which` picks the retailer's length rule."""
+    tracks, lo, hi = PREVIEWS[which]
+    parts = [OUT / t for t in tracks]
+    missing = [p.name for p in parts if not p.exists()]
+    if missing:
+        print(f"!! render these first: {', '.join(missing)}")
+        return 1
+    out = OUT / f"{SLUG}-sample-{which}.mp3"
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        gap = tmp / "gap.mp3"
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i",
+                        "anullsrc=r=44100:cl=mono", "-t", str(PREVIEW_GAP),
+                        "-codec:a", "libmp3lame", "-b:a", "192k", str(gap)],
+                       check=True)
+        # Chapter files already carry head and tail silence; nothing to add.
+        seq = [parts[0]]
+        for p in parts[1:]:
+            seq += [gap, p]
+        _concat(seq, out, tmp)
+    d = render.ffprobe_duration(out)
+    m, sec = divmod(int(round(d)), 60)
+    bad = "" if lo <= d <= hi else f"  !! OUTSIDE {lo // 60}-{hi // 60} MIN"
+    print(f"{out.name}  {m}:{sec:02d}{bad}")
+    return 1 if bad else 0
+
+
 def _one(name: str, out: Path, pace: float) -> render.Rendered:
     return render.track(MANUSCRIPT / name, out, NARRATOR_PROFILE, even_pace=pace)
 
@@ -82,7 +204,15 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--track", nargs="+")
     ap.add_argument("--audition", type=float, nargs="+", metavar="SYL_PER_SEC")
+    ap.add_argument("--credits", action="store_true")
+    ap.add_argument("--preview", nargs="?", const="all",
+                    choices=["all", *PREVIEWS])
     a = ap.parse_args()
+    if a.credits:
+        return credits_tracks()
+    if a.preview:
+        which = list(PREVIEWS) if a.preview == "all" else [a.preview]
+        return max(preview(w) for w in which)
     if a.audition:
         audition(a.audition)
         return 0
