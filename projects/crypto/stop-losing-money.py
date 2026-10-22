@@ -69,25 +69,37 @@ NARRATOR = "Kokoro"          # metadata field: "Kokoro (AI Voice)", per the APA
 
 # --- credit tracks (Author's Republic requires both, 3 min max each) -------
 #
-# Same construction as the tinnitus book: segments, so the title can be a
-# standalone utterance read slower than the credit lines, with a beat either
-# side. Kokoro has no emotion parameter; weight comes from pace and silence.
-EMPH = 0.72
-PLAIN = 0.90
+# Each segment carries a fixed speed, measured to match the book's tempo.
+#
+# History, so nobody repeats it. The tinnitus recipe read the title at 0.72
+# and the credit lines at 0.90 for emphasis; copied here, the credits came out
+# far slower than the book and were rejected on the first listen (2026-10-22).
+# Calibrating them with speak_at_pace did not fix it: anything under
+# render.MIN_SYLLABLES_TO_PACE is left at base speed, and on these lines the
+# espeak syllable count runs low (it drops the reduced vowel in "Narrated",
+# "Collapses" and the respelled names), so the calibrator thought they were
+# slow and stopped at its drift cap.
+#
+# So the speeds below were probed directly: rendered at 1.00 / 1.08 / 1.16 /
+# 1.24 and measured in syllables per second with a spelling-based count,
+# speech only, the same way on every chapter (chapters: 4.79 to 5.14, median
+# 4.92). The opening, dense with long words and commas, needs 1.22 to land in
+# that range; the closing lands at 1.00. Both sit inside the 0.94 to 1.27 the
+# book's own chapter titles calibrated to, well short of the 1.40 that once
+# garbled a title.
 CREDIT_GAP = 0.7
 
 OPENING = [
-    (f"This is {TITLE}.", EMPH),
-    (SUBTITLE + ".", PLAIN),
-    (f"Written by {AUTHOR}. Narrated by {NARRATOR}.", PLAIN),
+    (f"This is {TITLE}. {SUBTITLE}. "
+     f"Written by {AUTHOR}. Narrated by {NARRATOR}.", 1.22),
 ]
 
 CLOSING = [
-    (f"You have been listening to {TITLE}.", EMPH),
-    (f"Written by {AUTHOR}. Narrated by {NARRATOR}.", PLAIN),
-    ("The End.", EMPH),
+    (f"You have been listening to {TITLE}. "
+     f"Written by {AUTHOR}. Narrated by {NARRATOR}.", 1.00),
+    ("The End.", 1.00),
     ("There is more at the crypto dot wiki, with free guides on most of the "
-     "topics in this audiobook. Thank you for listening.", PLAIN),
+     "topics in this audiobook. Thank you for listening.", 1.00),
 ]
 
 # --- retail samples ----------------------------------------------------------

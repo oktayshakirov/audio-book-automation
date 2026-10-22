@@ -73,8 +73,8 @@ All in `~/Desktop/audiobook-crypto/`.
 | `01-intro.mp3` ... `14-outro.mp3` | yes | yes | yes |
 | `Stop-Losing-Money-in-Crypto-sample-spotify.mp3` (9:02) | - | yes | - |
 | `Stop-Losing-Money-in-Crypto-sample-ar.mp3` (3:20) | - | - | yes |
-| `Stop-Losing-Money-in-Crypto-opening-credits.mp3` (0:16) | - | - | yes |
-| `Stop-Losing-Money-in-Crypto-closing-credits.mp3` (0:20) | - | - | yes |
+| `Stop-Losing-Money-in-Crypto-opening-credits.mp3` (0:12) | - | - | yes |
+| `Stop-Losing-Money-in-Crypto-closing-credits.mp3` (0:18) | - | - | yes |
 | `Stop-Losing-Money-in-Crypto-cover-3000.jpg` | yes | yes | yes |
 
 Every audio file: 44.1 kHz, 192 kbps MP3, 1.5s silence at head and tail,
