@@ -76,6 +76,7 @@ All in `~/Desktop/audiobook-crypto/`.
 | `Stop-Losing-Money-in-Crypto-opening-credits.mp3` (0:12) | - | - | yes |
 | `Stop-Losing-Money-in-Crypto-closing-credits.mp3` (0:18) | - | - | yes |
 | `Stop-Losing-Money-in-Crypto-cover-3000.jpg` | yes | yes | yes |
+| `Stop-Losing-Money-in-Crypto-companion.pdf` (6 pages) | yes | - | - |
 
 Every audio file: 44.1 kHz, 192 kbps MP3, 1.5s silence at head and tail,
 peak -3.2 dB or lower.
@@ -91,6 +92,7 @@ python projects/crypto/stop-losing-money.py                 # all 14 tracks, ~45
 python projects/crypto/stop-losing-money.py --track 04-ch03.md
 python projects/crypto/stop-losing-money.py --credits
 python projects/crypto/stop-losing-money.py --preview       # both samples
+python projects/crypto/supplemental_pdf.py                  # companion PDF
 ```
 
 Run a full render in a terminal, not an agent background task. **The samples
@@ -105,6 +107,11 @@ one series.
 **Pace is a setting of 4.38 syl/sec, which measures ~4.30.** Approved from a
 two-take audition of chapter 11. Store the setting, not the measurement, or
 the next render comes out slower than the approved one.
+
+**The companion PDF has tick boxes; the tinnitus one deliberately does not.**
+That book argued against monitoring. This one's practice is a set of one-off
+jobs, so a checklist is the point. Supplemental PDFs go to Google Play only:
+Spotify documents no route for one, and Author's Republic has not said.
 
 **No disclaimer per chapter.** "Not your financial adviser" is said once, in
 the introduction.
