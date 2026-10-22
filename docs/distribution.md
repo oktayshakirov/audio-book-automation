@@ -40,6 +40,12 @@ any one place. Build all of these before you start a submission.
 | Supplemental PDF | one, under 100MB | not documented | not documented |
 | Cover | square, min 1400px, 3000px preferred | same | same |
 
+**Flatten the cover to RGB.** An image exported from ChatGPT came as a
+3000px PNG with an alpha channel. Ship an RGB JPEG
+(`ffmpeg -i cover.png -vf format=rgb24 -q:v 2 cover-3000.jpg`), and read
+the cover's text back against the metadata character for character before
+anything else - image generators misspell.
+
 **Every track needs 1 to 5 seconds of silence at each end.** Author's Republic
 rejects a track with "no start-of-track silence detected", and the validator
 wants `silence_start: 0`. This is the one that catches a locally built

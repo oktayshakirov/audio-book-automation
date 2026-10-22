@@ -251,3 +251,39 @@ A print-ism survives silent reading and fails out loud. Found on a finished
 manuscript: "close this book and go get examined" and "I have been honest with
 you from the first page". Grep a manuscript for `book|page|read on|turn the
 page|as you can see` before rendering.
+
+## Store the setting, not the measurement
+
+The per-paragraph calibration has a dead band, so results are pulled toward
+the voice's natural rate. On the crypto book's chapter 11 audition, a setting
+of 4.38 syl/sec measured 4.30 and a setting of 4.10 measured 4.15: two takes
+meant to be 7% apart came out 4% apart. The author approved the faster take,
+so the recipe stores **4.38**, the setting that reproduces it. Storing 4.30
+would have rendered a slower book than the one approved. Across 14 tracks
+that setting landed every chapter between 4.26 and 4.39.
+
+## The syllable counter undercounts reduced vowels
+
+`pronounce.syllables` counts vowel runs in espeak's IPA, and its vowel list
+does not include `ᵻ`, the reduced vowel in "Narrated", "Collapses" and many
+respelled names. Ordinary prose has it at a steady rate, so chapter-to-chapter
+comparisons hold. Short, name-heavy lines do not: they measure slow when they
+are not. Not fixed in code, because changing the counter moves every approved
+pace setting. When measuring credits or other odd text against chapters, use a
+spelling-based vowel-group count on both, speech only (silence over 0.25s
+removed).
+
+## Credits
+
+Do not slow the credits down for emphasis. Both books did (title at 0.72,
+lines at 0.90), and on the crypto book the author heard them as "very slow"
+against chapters calibrated faster. Calibrating them like paragraphs does not
+work either: lines under `MIN_SYLLABLES_TO_PACE` (25) are left at base speed,
+and the undercount above makes longer credit lines look slow, so the
+calibrator stops at its drift cap.
+
+What worked: render each credit segment at a few fixed speeds (1.00, 1.08,
+1.16, 1.24), measure them the same way as the chapters, and fix the speed that
+lands inside the chapters' range. The crypto credits needed 1.22 for the
+opening (long words, many commas) and 1.00 for the closing, 4.90 and 4.88
+against a chapter median of 4.92.

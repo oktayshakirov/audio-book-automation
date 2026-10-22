@@ -118,3 +118,19 @@ minutes).
   into a d, which a retailer's reviewer flagged on the title.
 - `--credits` and `--preview` create their output directory. They previously
   only worked if a track render had already made it.
+
+## 0.2.0
+
+Second title, *Stop Losing Money in Crypto* (14 tracks, 63:44), recipe in
+`projects/crypto/`.
+
+- Seven lexicon entries: Aretwo, Deetwo, memecoin, memecoins, Alameda, Khaled,
+  Akon.
+- Pace is stored as the setting that produced the approved audition (4.38),
+  not its measurement (4.30): the dead band pulls results toward the voice's
+  natural rate.
+- Credits read at the book's pace, with speeds probed per segment, after the
+  slowed-for-emphasis credits were rejected. Documented why calibration could
+  not do it: the 25-syllable floor, and espeak's syllable count missing `ᵻ`.
+- Docs: storing the pace setting, the syllable undercount, credits, names with
+  internal punctuation, plural lexicon entries, flattening an AI-made cover.

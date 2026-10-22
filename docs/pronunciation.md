@@ -69,3 +69,17 @@ every track would have needed re-rendering.
 Keep a `LEAVE_ALONE` list with reasons, or someone will "fix" a word that was
 right. Example: `Jastreboff` gets an English J rather than the Polish "ya-",
 because he has published in English for decades and clinicians say the J.
+
+## Punctuation inside a name
+
+A full stop inside a name is a sentence break to the synthesiser. "Mt. Gox"
+came out as "em tee", a pause, then "Gox". Spell such names the way they are
+spoken in the manuscript ("Mount Gox"); a lexicon entry cannot fix a sentence
+boundary.
+
+## Plurals need their own entry
+
+The lexicon matches whole words, so an entry for "memecoin" does nothing for
+"memecoins". Add each inflection the book uses, and check a capitalised form
+in a title still matches (it does: matching is case-insensitive and the case
+is restored).
