@@ -85,6 +85,13 @@ no-nonsense subtitle in the shape *(And How to Finally ...)*.
     Sound Is Not the Problem." reads as redundant when the player already
     shows the track name. Number chapters if it helps navigation, but let the
     front and back matter carry only their title.
+12. **No conversational filler before a list.** "Here we go." ahead of the
+    practice chapter's steps was rejected on the *Stop Making AI Slop*
+    audition: the synthetic voice reads it flat and it sounds robotic, the
+    opposite of the lift a person gives it. Go straight to "Step one.", or
+    hand over with a sentence that carries information ("The next chapter
+    builds that process, one check at a time."), not a cue like "Let us
+    begin" or "Step by step."
 
 ## Budgeting a book
 

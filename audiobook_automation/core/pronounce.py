@@ -96,6 +96,9 @@ LEXICON: dict[str, Fix] = {
     "Khaled": Fix(
         "Kahlid", "kˈɑːld", "kˈɑːlɪd",
         "Collapsed to one syllable, KAHLD. DJ Khaled is KAH-lid."),
+    "Goodrow": Fix(
+        "Goodro", "ɡˈʊdɹaʊ", "ɡˈʊdɹoʊ",
+        "Rhymes with cow. Cristos Goodrow (YouTube) is GOOD-roh."),
     "Akon": Fix(
         "A-kon", "ˈækən", "ˈeɪkˈɑːn",
         "AK-en. The singer is AY-kahn."),
