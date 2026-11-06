@@ -1,6 +1,6 @@
 # Stop Making AI Slop
 
-The third title built with this pipeline, in the same series format as
+The third title built with this pipeline. **Published November 2026.** It is in the same series format as
 *Shut Up, Tinnitus* and *Stop Losing Money in Crypto*. 14 tracks, 62:49,
 narrated locally with Kokoro. Built from what running AI-made video channels
 taught us, plus outside sources; every claim is cited in the git-ignored
@@ -70,7 +70,8 @@ content creator, tiktok, inauthentic content
 
 ## Upload kit
 
-All in `~/Desktop/audiobook-ai-slop/`.
+Built in `~/Desktop/audiobook-ai-slop/` (deleted after publishing; rebuild
+with the commands below).
 
 | File | Google Play | Spotify | Author's Republic |
 |---|---|---|---|
