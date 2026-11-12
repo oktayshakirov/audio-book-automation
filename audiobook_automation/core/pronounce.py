@@ -102,6 +102,20 @@ LEXICON: dict[str, Fix] = {
     "Akon": Fix(
         "A-kon", "ˈækən", "ˈeɪkˈɑːn",
         "AK-en. The singer is AY-kahn."),
+
+    # Job search book (2026-11-11). Measured with espeak-ng en-us.
+    # The lexicon is applied everywhere, so a manuscript that has this entry
+    # can never use "resume" as a verb ("resume the search"): write
+    # "continue" or "pick up" instead.
+    "resume": Fix(
+        "rezzumay", "ɹᵻzˈuːm", "ɹˈɛzjuːmˌeɪ",
+        "Read as the verb, rih-ZOOM. The document is REZ-yoo-may."),
+    "resumes": Fix(
+        "rezzumays", "ɹᵻzˈuːmz", "ɹˈɛzjuːmˌeɪz",
+        "Same error. Matching is whole-word, so the plural needs its own entry."),
+    "Preptel": Fix(
+        "Prepptel", "pɹɪptˈɛl", "pɹˈɛptəl",
+        "prip-TEL, stress on the end. The company is PREP-tel."),
 }
 
 # Checked and deliberately NOT fixed. Kept here so nobody 'fixes' them later.
