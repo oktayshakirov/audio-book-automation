@@ -37,8 +37,16 @@ any one place. Build all of these before you start a submission.
 | Sample | - | up to 10 min | **1 to 5 min** |
 | Opening credits | - | - | **required, max 3 min** |
 | Closing credits | - | - | **required, max 3 min** |
-| Supplemental PDF | one, under 100MB | not documented | not documented |
+| Supplemental PDF | **required by the author for every book**: one, under 100MB | not documented | not documented |
 | Cover | square, min 1400px, 3000px preferred | same | same |
+
+**Every book ships a supplemental PDF for Google Play** (the author's rule,
+2026-11-13). It is the book's companion: `projects/<book>/supplemental_pdf.py`
+writes `<Slug>-companion.pdf` into the upload kit. "Companion" and
+"supplemental" are the same file; there is no second PDF. Build it with the
+rest of the kit, before the first submission, never as an afterthought:
+a working document (the book's checklists, sheets to fill in, the plan, the
+sources), every figure matching the audited `SOURCES.md`.
 
 **Flatten the cover to RGB.** An image exported from ChatGPT came as a
 3000px PNG with an alpha channel. Ship an RGB JPEG
