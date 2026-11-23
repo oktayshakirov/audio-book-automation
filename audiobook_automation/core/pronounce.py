@@ -116,6 +116,52 @@ LEXICON: dict[str, Fix] = {
     "Preptel": Fix(
         "Prepptel", "pɹɪptˈɛl", "pɹˈɛptəl",
         "prip-TEL, stress on the end. The company is PREP-tel."),
+
+    # Diogenes book (2026-11-22). Measured with espeak-ng en-us. Greek
+    # names: espeak reads them as English spelling and gets most wrong.
+    "Diogenes": Fix(
+        "dye-odgineez", "dɪˈoʊdʒiːnz", "dˈaɪˈɑːdʒɪnˌiːz",
+        "Three syllables, dih-OH-jeenz. It is dye-ODJ-ih-neez. In the subtitle."),
+    "Plato": Fix(
+        "Playto", "plˈɑːɾoʊ", "plˈeɪɾoʊ",
+        "PLAH-toh. In English it is PLAY-toh."),
+    "Plato's": Fix(
+        "Playto's", "plˈɑːɾoʊz", "plˈeɪɾoʊz",
+        "Same error; the possessive is a separate whole word."),
+    # Applied everywhere: a later book that says "crates" (boxes) must move
+    # this entry into its own recipe or write "boxes".
+    "Crates": Fix(
+        "Krayteez", "kɹˈeɪts", "kɹˈeɪɾiːz",
+        "The word for boxes. The philosopher is KRAY-teez."),
+    "Sinope": Fix(
+        "sih-nohpee", "sˈɪnoʊp", "sˈɪnˈoʊpiː",
+        "Two syllables, SIN-ope. The city is sih-NOH-pee."),
+    "Antisthenes": Fix(
+        "an-tisthineez", "ˌæntɪsθˈiːnz", "æntˈɪsθɪnˌiːz",
+        "Stress on the end, ant-iss-THEENZ. It is an-TISS-thih-neez."),
+    "Xeniades": Fix(
+        "zeh-nyadeez", "zˈiːnɪˌeɪdz", "zˈeɪnˈaɪɐdˌiːz",
+        "ZEE-nee-aydz. It is zeh-NYE-uh-deez."),
+    # Wikipedia gives lay-UR-shee-əs, four syllables (checked 2026-11-23);
+    # the first fix, "Lay-urshus", dropped the ee and was re-rendered.
+    "Laertius": Fix(
+        "lay-ursheeus", "lˈɛɹɾɪəs", "lˈeɪˈɜːʃiːəs",
+        "LAIR-dee-us. It is lay-UR-shee-us."),
+    "Menippus": Fix(
+        "meh-nippus", "mˈɛnɪpəs", "mˈɛnˈɪpəs",
+        "MEN-ip-us. It is meh-NIP-us."),
+    "Gilovich": Fix(
+        "Gillovitch", "dʒaɪlˈoʊvɪtʃ", "ɡˈɪləvˌɪtʃ",
+        "Soft g, jy-LOH-vich. Thomas Gilovich is GILL-uh-vitch."),
+    "Isthmus": Fix(
+        "Issmus", "ˈɪsθməs", "ˈɪsməs",
+        "Sounds the th. The word is ISS-mus."),
+    "drachmas": Fix(
+        "drakmuz", "dɹˈætʃməz", "dɹˈækmʌz",
+        "DRATCH-muz. The ch is a k: DRAK-muz."),
+    "nomisma": Fix(
+        "noh-mizmah", "nˈɑːmɪsmə", "nˈoʊmˈɪzmə",
+        "NAH-mis-muh. Greek: noh-MIZ-mah."),
 }
 
 # Checked and deliberately NOT fixed. Kept here so nobody 'fixes' them later.
